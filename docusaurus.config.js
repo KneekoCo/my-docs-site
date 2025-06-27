@@ -42,6 +42,19 @@ projectName: 'my-docs-site',  // Your GitHub repo name
     defaultLocale: 'en',
     locales: ['en'],
   },
+plugins: [
+  [
+    '@docusaurus/plugin-client-redirects',
+    {
+      redirects: [
+        {
+          from: '/',
+          to: '/docs/intro',
+        },
+      ],
+    },
+  ],
+],
 
   presets: [
     [
