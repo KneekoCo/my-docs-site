@@ -42,19 +42,7 @@ projectName: 'my-docs-site',  // Your GitHub repo name
     defaultLocale: 'en',
     locales: ['en'],
   },
-plugins: [
-  [
-    '@docusaurus/plugin-client-redirects',
-    {
-      redirects: [
-        {
-          from: '/',
-          to: '/docs/intro',
-        },
-      ],
-    },
-  ],
-],
+
 
   presets: [
     [
@@ -81,27 +69,7 @@ plugins: [
     ({
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
-      navbar: {
-        title: 'KneekoCo',
-        logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
-        },
-        items: [
-          {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Tutorial',
-          },
-          
-          {
-            href: 'https://github.com/KneekoCo/my-docs-site',
-            label: 'GitHub',
-            position: 'right',
-          },
-        ],
-      },
+      
       footer: {
         style: 'dark',
         links: [
@@ -119,10 +87,10 @@ plugins: [
             items: [
               {
                 label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                href: 'https://github.com/KneekoCo/my-docs-site',
               },
               {
-                label: 'Discord',
+                label: 'GitHub',
                 href: 'https://discordapp.com/invite/docusaurus',
               },
               {
