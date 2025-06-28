@@ -1,6 +1,5 @@
 // @ts-check
 import { themes as prismThemes } from 'prism-react-renderer';
-import { startTransition } from 'react';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -15,8 +14,10 @@ const config = {
   url: 'https://kneekoco.github.io',
   baseUrl: '/my-docs-site/',
 
-  organizationName: 'KneekoCo',
-  projectName: 'my-docs-site',
+  organizationName: 'KneekoCo', // GitHub username or org
+  projectName: 'my-docs-site',  // GitHub repo name
+  deploymentBranch: 'gh-pages', // Required for deploy
+  trailingSlash: false,
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -44,14 +45,11 @@ const config = {
 
   themeConfig: {
     image: 'img/ThaLogo.png',
-
-    // Added color mode toggle support
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
       respectPrefersColorScheme: false,
     },
-
     navbar: {
       title: 'KneekoCo',
       logo: {
@@ -59,6 +57,10 @@ const config = {
         src: 'img/ThaLogo.png',
       },
       items: [
+        {
+          type: 'search',
+          position: 'right',
+        },
         {
           href: 'https://github.com/KneekoCo/my-docs-site',
           label: 'GitHub',
@@ -68,27 +70,8 @@ const config = {
     },
     footer: {
       style: 'dark',
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Home',
-              to: 'docs/intro',
-            },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
-            {
-              label: 'GitHub',
-              href: 'https://github.com/KneekoCo/my-docs-site',
-            },
-          ],
-        },
-      ],
-      copyright: `Copyright © ${new Date().getFullYear()} KneekoCo, LLC. Built with Docusaurus.`,
+      links: [],
+      copyright: `Copyright © ${new Date().getFullYear()} KneekoCo, LLC.`,
     },
     prism: {
       theme: prismThemes.github,
