@@ -7,18 +7,14 @@ const config = {
   tagline: 'Lets Document Easy',
   favicon: 'img/ThaLogo.png',
 
-  future: {
-    v4: true,
-  },
-
   url: 'https://kneekoco.github.io',
   baseUrl: '/my-docs-site/',
 
-  organizationName: 'KneekoCo', // GitHub username or org
-  projectName: 'my-docs-site',  // GitHub repo name
-  deploymentBranch: 'gh-pages', // Required for deploy
-  trailingSlash: false,
+  organizationName: 'KneekoCo', // GitHub username
+  projectName: 'my-docs-site',  // GitHub repo
+  deploymentBranch: 'gh-pages',
 
+  trailingSlash: false,
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
@@ -32,7 +28,7 @@ const config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.js',
+          sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/KneekoCo/my-docs-site',
         },
         blog: false,
@@ -57,15 +53,8 @@ const config = {
         src: 'img/ThaLogo.png',
       },
       items: [
-        {
-          type: 'search',
-          position: 'right',
-        },
-        {
-          href: 'https://github.com/KneekoCo/my-docs-site',
-          label: 'GitHub',
-          position: 'right',
-        },
+        { type: 'search', position: 'right' },
+        { href: 'https://github.com/KneekoCo/my-docs-site', label: 'GitHub', position: 'right' },
       ],
     },
     footer: {

@@ -18,10 +18,10 @@ To use the API, you must first create an internal integration.
 2. Click **"New integration"**.
 
 :memo: **Note:** To continue you must be logged in
-
-3. Select a workspace
-4. Selecte the Type
-Name your integration (e.g., `My Portfolio Writer Demo`).
+3. Name your integration (e.g., `My Portfolio Writer Demo`).
+4. Select a workspace
+5. Selecte the Type
+6. Add logo (optional)
 4. Set required permissions (start with `Read content` and `Insert content`).
 5. Save and copy the **Internal Integration Token**.
 
@@ -44,6 +44,22 @@ Name your integration (e.g., `My Portfolio Writer Demo`).
 | **Redirect URIs** | The secure path users are redirected to after logging in via OAuth.<br /><ul><li>Must begin with `https://`</li><li>No wildcards, fragments, IPs, or relative paths</li><li>Must match the token exchange request</li></ul> Example: `https://yourapp.com/oauth/callback` |
 | **Notion URL for Optional Template** | (Optional) A link to a Notion page or template that users can clone.<br /> Helps new users get started with a prebuilt layout. |
 
+
+## Integration Settings Explained
+
+You must select either Read comments or insert comments or both in order to Save.
+
+| **Field / Item**              | **Description**                                                                 |
+|------------------------------|---------------------------------------------------------------------------------|
+| **Read content**             | Grants the integration permission to retrieve and view existing pages, blocks, or databases within the workspace. It is a **read-only** access level for content. |
+| **Update content**           | Allows the integration to modify or overwrite existing pages or blocks. This includes editing text, changing properties, or updating structure. |
+| **Insert content**           | Enables the integration to create **new** pages or blocks in the workspace. Useful for bots or automation that generate content. |
+| **Read comments**            | Permits the integration to view comments that users have made on pages or blocks. Does **not** allow posting or deleting comments. |
+| **Insert comments**          | Allows the integration to add new comments on pages or blocks. Helpful for feedback bots or automated suggestions. |
+| **No user information**      | The integration will not access any data related to user profiles. Ensures full user anonymity. |
+| **Read user info (no email)**| Grants access to **non-sensitive** user data such as name and profile photo, but **excludes** email addresses. |
+| **Read user info (with email)** | Provides full access to user profile information, including **email addresses**. Use this only if email communication or identity verification is necessary. |
+| **Cancel / Save**            | UI controls to **cancel** changes or **save** the integration configuration. Not related to permission itself but to user interface actions. |
 
 
 
