@@ -13,7 +13,6 @@ const config = {
   title: 'KneekoCo',
   tagline: 'Lets Document Easy',
   favicon: 'img/favicon.ico',
-  trailingSlash: false,
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
