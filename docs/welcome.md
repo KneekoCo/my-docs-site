@@ -1,8 +1,8 @@
 ---
-id: Welcome
+id: welcome
 title: Welcome
+slug: /docs/welcome
 ---
-
 # Welcome to KneekoCo Docs
 
-Start documenting your project here.
+Let's document easy.

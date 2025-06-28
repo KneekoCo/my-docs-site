@@ -1,26 +1,36 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link'; // ✅ Important
+import Link from '@docusaurus/Link';
 
 export default function Home() {
   return (
     <Layout
       title="Welcome to KneekoCo"
       description="Your documentation, simplified.">
-      <main style={{ padding: '2rem', textAlign: 'center' }}>
-        <h1>Welcome to KneekoCo Docs</h1>
-        <p>Let's document easy.</p>
+      <main style={{
+        padding: '4rem 2rem',
+        textAlign: 'center',
+        backgroundColor: '#fff',
+      }}>
+        <img
+          src="/img/ThaLogo.png"
+          alt="KneekoCo Logo"
+          style={{ maxWidth: '200px', marginBottom: '2rem' }}
+        />
+        <h1 style={{ fontSize: '2.5rem', color: '#a02124' }}>Welcome to KneekoCo Docs</h1>
+        <p style={{ fontSize: '1.2rem', margin: '1rem 0' }}>Let's document easy.</p>
         <Link
-          to="/docs/intro"
+          to="/docs/welcome/"
           style={{
             display: 'inline-block',
             marginTop: '1.5rem',
             padding: '0.75rem 1.5rem',
-            background: '#25c2a0',
+            background: '#a02124',
             color: '#fff',
             borderRadius: '8px',
             textDecoration: 'none',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            fontSize: '1rem',
           }}>
           Get Started
         </Link>

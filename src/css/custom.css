@@ -4,7 +4,6 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
 /* ====== COLORS ====== */
 :root {
   --ifm-color-primary: #a02124;
@@ -35,7 +34,7 @@
 
 /* ====== LOGO SIZING ====== */
 .navbar__logo img {
-  height: 48px;
+  max-height: 48px;
   border-radius: 6px;
 }
 
@@ -43,6 +42,7 @@
 .navbar {
   background-color: white;
   border-bottom: 1px solid #ddd;
+  margin-top: 80px; /* 👈 Push navbar lower on the screen */
 }
 
 .navbar__title {
@@ -60,4 +60,3 @@
 .footer a {
   color: #ff5c5c;
 }
-
