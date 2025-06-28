@@ -12,7 +12,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'KneekoCo',
   tagline: 'Lets Document Easy',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/ThaLogo.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -68,13 +68,13 @@ projectName: 'my-docs-site',
   ],
 
   themeConfig: {
-  image: 'img/docusaurus-social-card.jpg',
+  image: 'img/ThaLogo.png',
 
   navbar: {
     title: 'KneekoCo',
     logo: {
       alt: 'My Site Logo',
-      src: 'img/logo.svg',
+      src: '/static/img/logo.png',
     },
     items: [
       {
