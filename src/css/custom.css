@@ -5,26 +5,59 @@
  */
 
 /* You can override the default Infima variables here. */
+/* ====== COLORS ====== */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-color-primary: #a02124;
+  --ifm-color-primary-dark: #85181b;
+  --ifm-color-primary-darker: #701316;
+  --ifm-color-primary-darkest: #5c1012;
+  --ifm-color-primary-light: #b53034;
+  --ifm-color-primary-lighter: #c84145;
+  --ifm-color-primary-lightest: #d9525a;
+
+  --ifm-font-family-base: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --ifm-heading-font-weight: 700;
+  --ifm-font-weight-semibold: 600;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.6;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* ====== DARK MODE ====== */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #ff5c5c;
+  --ifm-color-primary-dark: #e44b4b;
+  --ifm-color-primary-darker: #c14040;
+  --ifm-color-primary-darkest: #a83838;
+  --ifm-color-primary-light: #ff6f6f;
+  --ifm-color-primary-lighter: #ff8080;
+  --ifm-color-primary-lightest: #ff9999;
 }
+
+/* ====== LOGO SIZING ====== */
+.navbar__logo img {
+  height: 48px;
+  border-radius: 6px;
+}
+
+/* ====== NAVBAR STYLE ====== */
+.navbar {
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.navbar__title {
+  color: #a02124;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* ====== FOOTER STYLE ====== */
+.footer {
+  background-color: #111;
+  color: #ccc;
+}
+
+.footer a {
+  color: #ff5c5c;
+}
+

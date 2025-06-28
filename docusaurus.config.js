@@ -45,10 +45,12 @@ const config = {
     image: 'img/ThaLogo.png',
     navbar: {
       title: 'KneekoCo',
-      logo: {
-        alt: 'KneekoCo Logo',
-        src: 'img/ThaLogo.png', // ✅ No leading slash, must match file in /static/img/
-      },
+   logo: {
+  alt: 'KneekoCo Logo',
+  src: 'img/ThaLogo.png',
+}
+,
+
       items: [
         {
           href: 'https://github.com/KneekoCo/my-docs-site',
