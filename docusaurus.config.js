@@ -35,7 +35,7 @@ const config = {
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: require.resolve('./src/css/custom.css'), // Correct usage
         },
       },
     ],
@@ -45,12 +45,10 @@ const config = {
     image: 'img/ThaLogo.png',
     navbar: {
       title: 'KneekoCo',
-   logo: {
-  alt: 'KneekoCo Logo',
-  src: 'img/ThaLogo.png',
-}
-,
-
+      logo: {
+        alt: 'KneekoCo Logo',
+        src: 'img/ThaLogo.png',
+      },
       items: [
         {
           href: 'https://github.com/KneekoCo/my-docs-site',
