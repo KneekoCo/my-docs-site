@@ -60,3 +60,13 @@
 .footer a {
   color: #ff5c5c;
 }
+/* ====== CUSTOM MAIN STYLING FOR DARK MODE ====== */
+[data-theme='dark'] main {
+  background-color: #1a1a1a; /* Dark background */
+  color: #f2f2f2; /* Light text */
+}
+
+main {
+  background-color: white; /* Light mode background */
+  color: #111; /* Default text color */
+}
