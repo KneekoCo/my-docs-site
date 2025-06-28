@@ -2,12 +2,11 @@
   "name": "my-docs",
   "version": "0.0.0",
   "private": true,
- "scripts": {
-  "start": "docusaurus start",
-  "build": "docusaurus build",
-  "deploy": "cross-env USE_SSH=true docusaurus deploy"
-},
-
+  "scripts": {
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "deploy": "cross-env USE_SSH=true docusaurus deploy"
+  },
   "dependencies": {
     "@docusaurus/core": "3.8.1",
     "@docusaurus/plugin-client-redirects": "^3.8.1",
