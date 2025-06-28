@@ -36,6 +36,10 @@ export default function Home() {
           }}>
           Get Started
         </Link>
+        <main className="home-main">
+  {/* ... your content ... */}
+</main>
+
       </main>
     </Layout>
   );
