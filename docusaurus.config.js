@@ -1,5 +1,6 @@
 // @ts-check
 import { themes as prismThemes } from 'prism-react-renderer';
+import { startTransition } from 'react';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -35,7 +36,7 @@ const config = {
         },
         blog: false,
         theme: {
-          customCss: require.resolve('./src/css/custom.css'), // Correct usage
+          customCss: require.resolve('./src/css/custom.css'),
         },
       },
     ],
@@ -43,6 +44,14 @@ const config = {
 
   themeConfig: {
     image: 'img/ThaLogo.png',
+
+    // Added color mode toggle support
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
+    },
+
     navbar: {
       title: 'KneekoCo',
       logo: {

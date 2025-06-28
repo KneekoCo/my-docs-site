@@ -70,9 +70,10 @@
   color: #fff !important; /* White text for readability */
 }
 
-.navbar__item:hover {
-  color: var(--ifm-color-primary-lightest) !important;
+.navbar__item svg {
+  fill: #ffffff !important;
 }
+
 
 
 /* ============================= */
@@ -126,4 +127,21 @@ table td {
 table th {
   background-color: #f5f5f5;
   font-weight: 600;
+}
+
+table th {
+  background-color: var(--ifm-table-background-header, #f5f5f5);
+  color: var(--ifm-table-color, var(--ifm-color-content));
+}
+
+[data-theme='dark'] table th {
+  background-color: var(--ifm-color-emphasis-200, #2c2c2c);
+  color: var(--ifm-color-content, #ffffff);
+}
+[data-theme='dark'] table tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+table td {
+  padding: 0.75rem;
+  color: var(--ifm-color-content);
 }
