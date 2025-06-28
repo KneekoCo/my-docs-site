@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl'; // ✅ This should be at the top level
 
 export default function Home() {
   return (
@@ -13,10 +14,11 @@ export default function Home() {
         backgroundColor: '#fff',
       }}>
         <img
-          src="img/ThaLogo.png"
+          src={useBaseUrl('img/ThaLogo.png')}
           alt="KneekoCo Logo"
           style={{ maxWidth: '200px', marginBottom: '2rem' }}
         />
+
         <h1 style={{ fontSize: '2.5rem', color: '#a02124' }}>Welcome to KneekoCo Docs</h1>
         <p style={{ fontSize: '1.2rem', margin: '1rem 0' }}>Let's document easy.</p>
         <Link
