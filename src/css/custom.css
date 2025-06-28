@@ -55,8 +55,8 @@
 /* ====== NAVBAR STYLES ======= */
 /* ============================= */
 .navbar {
-  background-color: var(--ifm-background-color);
-  border-bottom: 1px solid #ccc;
+  background-color: #111 !important; /* Dark background always */
+  border-bottom: 1px solid #444;
   margin-top: 2px;
 }
 
@@ -67,12 +67,13 @@
 
 .navbar__title,
 .navbar__item {
-  color: var(--ifm-color-content) !important;
+  color: #fff !important; /* White text for readability */
 }
 
 .navbar__item:hover {
   color: var(--ifm-color-primary-lightest) !important;
 }
+
 
 /* ============================= */
 /* ====== HOMEPAGE STYLES ===== */
