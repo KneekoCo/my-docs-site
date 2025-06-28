@@ -42,7 +42,7 @@
 .navbar {
   background-color: white;
   border-bottom: 1px solid #ddd;
-  margin-top: 80px; /* 👈 Push navbar lower on the screen */
+  margin-top: 50px; /* 👈 Push navbar lower on the screen */
 }
 
 .navbar__title {
