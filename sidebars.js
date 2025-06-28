@@ -7,6 +7,7 @@ const sidebars = {
       type: 'doc',
       id: 'welcome', // this must match /docs/welcome.md
       label: 'Welcome',
+      'notion-task-tracker',
     },
   ],
 };
