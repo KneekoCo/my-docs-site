@@ -1,11 +1,14 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Global Custom Styles for KneekoCo Docs
+ * Applies styles to both light and dark themes with brand colors
  */
 
-/* ====== COLORS ====== */
+/* ============================= */
+/* ====== GLOBAL VARIABLES ===== */
+/* ============================= */
+
 :root {
+  /* Brand Colors */
   --ifm-color-primary: #a02124;
   --ifm-color-primary-dark: #85181b;
   --ifm-color-primary-darker: #701316;
@@ -14,14 +17,21 @@
   --ifm-color-primary-lighter: #c84145;
   --ifm-color-primary-lightest: #d9525a;
 
+  /* Base Typography */
   --ifm-font-family-base: 'Segoe UI', 'Helvetica Neue', sans-serif;
   --ifm-heading-font-weight: 700;
   --ifm-font-weight-semibold: 600;
   --ifm-font-size-base: 16px;
   --ifm-line-height-base: 1.6;
+
+  /* Light Theme */
+  --ifm-background-color: #ffffff;
+  --ifm-color-content: #111111;
 }
 
-/* ====== DARK MODE ====== */
+/* ============================= */
+/* ====== DARK MODE OVERRIDES == */
+/* ============================= */
 [data-theme='dark'] {
   --ifm-color-primary: #ff5c5c;
   --ifm-color-primary-dark: #e44b4b;
@@ -30,28 +40,64 @@
   --ifm-color-primary-light: #ff6f6f;
   --ifm-color-primary-lighter: #ff8080;
   --ifm-color-primary-lightest: #ff9999;
+
+  --ifm-background-color: #1a1a1a;
+  --ifm-color-content: #f2f2f2;
 }
 
-/* ====== LOGO SIZING ====== */
+/* Apply background + text color sitewide */
+#__docusaurus {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+}
+
+/* ============================= */
+/* ====== NAVBAR STYLES ======= */
+/* ============================= */
+.navbar {
+  background-color: var(--ifm-background-color);
+  border-bottom: 1px solid #ccc;
+  margin-top: 2px;
+}
+
 .navbar__logo img {
   max-height: 48px;
   border-radius: 6px;
 }
 
-/* ====== NAVBAR STYLE ====== */
-.navbar {
-  background-color: white;
-  border-bottom: 1px solid #ddd;
-  margin-top: 2px; /* 👈 Push navbar lower on the screen */
+.navbar__title,
+.navbar__item {
+  color: var(--ifm-color-content) !important;
 }
 
-.navbar__title {
-  color: #a02124;
-  font-weight: bold;
-  letter-spacing: 1px;
+.navbar__item:hover {
+  color: var(--ifm-color-primary-lightest) !important;
 }
 
-/* ====== FOOTER STYLE ====== */
+/* ============================= */
+/* ====== HOMEPAGE STYLES ===== */
+/* ============================= */
+.homepage main {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.homepage-title {
+  font-size: 2.5rem;
+  color: var(--ifm-color-primary);
+}
+
+.homepage-subtitle {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+  color: var(--ifm-color-content);
+}
+
+/* ============================= */
+/* ====== FOOTER STYLES ======= */
+/* ============================= */
 .footer {
   background-color: #111;
   color: #ccc;
@@ -59,27 +105,4 @@
 
 .footer a {
   color: #ff5c5c;
-}
-/* ====== LIGHT MODE MAIN STYLING ====== */
-:root {
-  --ifm-background-color: #ffffff;
-  --ifm-color-content: #111111;
-}
-
-/* ====== DARK MODE MAIN STYLING ====== */
-[data-theme='dark'] {
-  --ifm-background-color: #1a1a1a;
-  --ifm-color-content: #f2f2f2;
-}
-
-/* Apply background to the full document */
-#__docusaurus {
-  background-color: var(--ifm-background-color);
-  color: var(--ifm-color-content);
-}
-
-/* Optional: style the homepage main tag directly */
-.homepage main {
-  background-color: var(--ifm-background-color);
-  color: var(--ifm-color-content);
 }

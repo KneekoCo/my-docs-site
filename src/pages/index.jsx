@@ -16,7 +16,10 @@ export default function Home() {
           style={{ maxWidth: '200px', marginBottom: '2rem' }}
         />
 
-        <h1 style={{ fontSize: '2.5rem', color: '#a02124' }}>Welcome to KneekoCo Docs</h1>
+       <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
+<p className="homepage-subtitle">Let's document easy.</p>
+
+
         <p style={{ fontSize: '1.2rem', margin: '1rem 0' }}>Let's document easy.</p>
         <Link
           to="/docs/welcome/"
