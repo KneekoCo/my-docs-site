@@ -1,8 +1,9 @@
 ---
 id: welcome
 title: Welcome
-slug: /docs/welcome
+description: Getting started with KneekoCo Docs
 ---
-# Welcome to KneekoCo Docs
 
-Let's document easy.
+# Welcome
+
+This is your welcome page content.
