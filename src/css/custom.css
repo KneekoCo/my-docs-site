@@ -60,16 +60,26 @@
 .footer a {
   color: #ff5c5c;
 }
-/* Custom main background for light mode */
-.home-main {
-  background-color: white;
-  color: #111;
-  padding: 4rem 2rem;
-  text-align: center;
+/* ====== LIGHT MODE MAIN STYLING ====== */
+:root {
+  --ifm-background-color: #ffffff;
+  --ifm-color-content: #111111;
 }
 
-/* Custom main background for dark mode */
-[data-theme='dark'] .home-main {
-  background-color: #1a1a1a;
-  color: #f2f2f2;
+/* ====== DARK MODE MAIN STYLING ====== */
+[data-theme='dark'] {
+  --ifm-background-color: #1a1a1a;
+  --ifm-color-content: #f2f2f2;
+}
+
+/* Apply background to the full document */
+#__docusaurus {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+}
+
+/* Optional: style the homepage main tag directly */
+.homepage main {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-color-content);
 }

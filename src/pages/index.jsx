@@ -8,7 +8,8 @@ export default function Home() {
     <Layout
       title="Welcome to KneekoCo"
       description="Your documentation, simplified.">
-      <main className="home-main">
+      <main className="homepage" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+
         <img
           src={useBaseUrl('img/ThaLogo.png')}
           alt="KneekoCo Logo"
