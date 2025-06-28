@@ -13,7 +13,7 @@ export default function Home() {
         backgroundColor: '#fff',
       }}>
         <img
-          src="/img/ThaLogo.png"
+          src="img/ThaLogo.png"
           alt="KneekoCo Logo"
           style={{ maxWidth: '200px', marginBottom: '2rem' }}
         />
