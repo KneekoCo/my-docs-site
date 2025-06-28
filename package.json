@@ -5,7 +5,12 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "deploy": "cross-env USE_SSH=true docusaurus deploy"
+    "deploy": "cross-env GIT_USER=KneekoCo USE_SSH=false docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "swizzle": "docusaurus swizzle",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
     "@docusaurus/core": "3.8.1",
