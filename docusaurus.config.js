@@ -13,6 +13,7 @@ const config = {
   title: 'KneekoCo',
   tagline: 'Lets Document Easy',
   favicon: 'img/favicon.ico',
+  trailingSlash: false,
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -35,7 +36,7 @@ projectName: 'my-docs-site',
  // Your GitHub username
   // Your GitHub repo name
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
