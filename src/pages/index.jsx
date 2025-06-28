@@ -1,18 +1,14 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl'; // ✅ This should be at the top level
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 export default function Home() {
   return (
     <Layout
       title="Welcome to KneekoCo"
       description="Your documentation, simplified.">
-      <main style={{
-        padding: '4rem 2rem',
-        textAlign: 'center',
-        backgroundColor: '#fff',
-      }}>
+      <main className="home-main">
         <img
           src={useBaseUrl('img/ThaLogo.png')}
           alt="KneekoCo Logo"
@@ -36,10 +32,6 @@ export default function Home() {
           }}>
           Get Started
         </Link>
-        <main className="home-main">
-  {/* ... your content ... */}
-</main>
-
       </main>
     </Layout>
   );
