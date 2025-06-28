@@ -26,11 +26,14 @@ const config = {
 url: 'https://kneekoco.github.io',
 baseUrl: '/my-docs-site/',
 
+organizationName: 'KneekoCo',
+projectName: 'my-docs-site',
+
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
- organizationName: 'KneekoCo', // Your GitHub username
-projectName: 'my-docs-site',  // Your GitHub repo name
+ // Your GitHub username
+  // Your GitHub repo name
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -81,13 +84,32 @@ projectName: 'my-docs-site',  // Your GitHub repo name
       },
     ],
   },
-  footer: {
-    // keep your footer as-is
-  },
-  prism: {
-    theme: prismThemes.github,
-    darkTheme: prismThemes.dracula,
-  },
+ footer: {
+  style: 'dark',
+  links: [
+    {
+      title: 'Docs',
+      items: [
+        {
+          label: 'Home',
+         to: 'docs/intro',
+
+        },
+      ],
+    },
+    {
+      title: 'Community',
+      items: [
+        {
+          label: 'GitHub',
+          href: 'https://github.com/KneekoCo/my-docs-site',
+        },
+      ],
+    },
+  ],
+  copyright: `Copyright © ${new Date().getFullYear()} KneekoCo, LLC. Built with Docusaurus.`,
+}
+
 },
 }
 
