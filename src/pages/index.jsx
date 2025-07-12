@@ -20,7 +20,7 @@ export default function Home() {
 
         <p style={{ fontSize: '1.2rem', margin: '1rem 0' }}>Let's document easy.</p>
         <Link
-          to="/docs/welcome/"
+          to="/docs/getting-started/"
           style={{
             display: 'inline-block',
             marginTop: '1.5rem',
