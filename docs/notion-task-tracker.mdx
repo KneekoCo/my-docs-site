@@ -11,34 +11,41 @@ Use this guide to create a Notion-based task tracker that helps you manage your 
 
 ## Step-by-Step Instructions
 
-### 1. Open Notion and Create a New Page
+### Open Notion and Create a New Page
 
-- Go to your Notion home page Link: [https://www.notion.so](https://www.notion.so).
-- Click **+ New Page** in the sidebar.
+1. Go to your Notion home page Link: [https://www.notion.so](https://www.notion.so).
+
+2. Click **+ New Page** icon in the left sidebar.
 
 <img src={require('@site/static/img/TaskTracker_NewPage.png').default} width="80%" />
+<br></br><br></br>
 
-- Name it something like `Task Tracker`.
+### Add a Database Table
 
-### 2. Add a Database Table
-Open Notion and go to your new page (e.g., Docusaurus Portfolio Tracker).
+1. Click **Database** at the bottom of the main screen.
 
-Click inside the page where it says “Press Enter to continue with an empty page” (if it's blank).
+<img src={require('@site/static/img/TaskTracker-AddDatabase.png').default} width="80%" />
+<br></br><br></br>
 
-Type/table and you’ll see a dropdown with options.
+:memo: **Note:** The database pop up will appear, users can select from a few prebuilt tables, build with AI or an empty database. 
 
-Select “Table view – Database” from the list.
+2. Select **Empty Database.**
 
-Notion will automatically create a new full-page database table titled “Untitled”.
+<img src={require('@site/static/img/TaskTracker-NewDatabase.png').default} width="80%" />
+<br></br><br></br>
 
-Rename the table by clicking the title and typing a new one, such as Portfolio Task Tracker.
+:memo: **Note:** Notion will automatically create a new full-page database table titled “Untitled”.
 
-You now have a fully functional table to begin adding and organizing your tasks.
+6. Click the title and give it a name, like `Task Tracker`.
 
+<img src={require('@site/static/img/TaskTracker-NameDatabase.png').default} width="80%" />
+<br></br><br></br>
 
+7. You now have a fully functional table to begin adding and organizing your tasks.
 
-### 3. Set Up Your Table Structure
-Rename the default columns and add new ones as needed:
+### Set Up Your Table Structure
+
+1. Rename the default columns and add new ones as needed:
 
 | Column Name     | Type           | Purpose                                      |
 |-----------------|----------------|----------------------------------------------|
@@ -48,8 +55,49 @@ Rename the default columns and add new ones as needed:
 |  Due Date      | Date            | Target completion date                      |
 |  Notes         | Text/URL        | Extra info, links, or commands              |
 
-To change a column’s type, click its title → **Property Type** → choose the correct type.
+:memo: **Note:** To change a column’s type, click its title → **Property Type** → choose the correct type.
 
+2. Click on the first column,  which is the title column, and reame it `Task Name`.
+
+3. Click **Add Property**
+
+<img src={require('@site/static/img/TaskTracker-AddProperty.png').default} width="80%" />
+<br></br><br></br>
+
+4. A menu of different column types with pop up, click the **Select** column type.
+
+:memo: **Note:** For more information about column types see the [Database Column types](#database-column-types) table.
+
+<img src={require('@site/static/img/TaskTracker-AddProperty.png').default} width="80%" />
+<br></br><br></br>
+
+
+
+5. 
+
+#### Database Column types
+
+| **Column Type**        | **Purpose / Use Case**                                                                 |
+|------------------------|----------------------------------------------------------------------------------------|
+| **Title**              | Primary identifier for the row (usually the task or item name).                        |
+| **Text**               | Freeform text notes or descriptions.                                                   |
+| **Number**             | Stores numeric values. Can be formatted (e.g., currency, percentage).                  |
+| **Select**             | Choose one option from a predefined list. Ideal for status or category.                |
+| **Multi-select**       | Choose multiple tags or categories from a predefined list.                             |
+| **Date**               | Assign dates or date ranges (supports time as well).                                   |
+| **Person**             | Assign to one or more Notion users.                                                    |
+| **Files & media**      | Upload or link files, images, or media.                                                |
+| **Checkbox**           | Track binary status like done/undone.                                                  |
+| **URL**                | Store clickable links.                                                                 |
+| **Email**              | Store email addresses (renders as clickable mailto links).                            |
+| **Phone**              | Store phone numbers.                                                                   |
+| **Formula**            | Create custom formulas based on other columns (like Excel functions).                  |
+| **Relation**           | Link to another Notion database.                                                       |
+| **Rollup**             | Summarize or calculate values from related database entries.                           |
+| **Created time**       | Auto-generated timestamp when row was created.                                         |
+| **Created by**         | Auto-filled with the user who created the row.                                         |
+| **Last edited time**   | Timestamp for the last time the row was modified.                                      |
+| **Last edited by**     | Shows who last modified the row.                                                       |
 
 
 ### 4. Add Your Tasks
