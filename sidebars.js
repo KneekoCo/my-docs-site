@@ -3,8 +3,8 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   tutorialSidebar: [
-    'welcome',               // 👈 This matches /docs/welcome.md
-    'notion-task-tracker',   // 👈 This matches /docs/notion-task-tracker.md
+    'welcome',               // 👈 This matches /docs/welcome.mdx
+    'notion-task-tracker',   // 👈 This matches /docs/notion-task-tracker.mdx
   ],
 };
 
