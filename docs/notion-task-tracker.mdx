@@ -75,3 +75,216 @@ Fill in the table with the tasks for your Docusaurus portfolio. Example:
 
 ##  Pro Tip
 Link this Notion tracker in your portfolio or Docusaurus site footer to show off your workflow.
+---
+id: notion-task-tracker
+title: Notion Task Tracker
+description: Guide for building a task tracker in Notion
+---
+
+import Admonition from '@theme/Admonition';
+
+# How to Build a Simple Task Tracker in Notion
+
+Use this guide to build a clean and functional task tracker in Notion to manage your Docusaurus portfolio work.
+
+---
+
+## Step-by-Step Instructions
+
+### Step 1: Open Notion and Create a New Page
+
+1. Go to the Notion homepage: [https://www.notion.so](https://www.notion.so)
+2. In the left sidebar, click the **+ New Page** icon.
+
+<img src={require('@site/static/img/TaskTracker_NewPage.png').default} alt="New Notion Page" width="80%" />
+<br /><br />
+
+---
+
+### Step 2: Add a Database Table
+
+1. From the new page, click **Database** at the bottom of the screen.
+
+<img src={require('@site/static/img/TaskTracker-AddDatabase.png').default} alt="Add Database" width="80%" />
+<br /><br />
+
+<Admonition type="note" title="Heads Up!">
+The database pop-up allows you to pick a prebuilt table, generate one with AI, or start from scratch.
+</Admonition>
+
+2. Choose **Empty Database**.
+
+<img src={require('@site/static/img/TaskTracker-NewDatabase.png').default} alt="Select Empty Database" width="80%" />
+<br /><br />
+
+<Admonition type="note" title="Need Column Help?">
+See the [**Database Column Types**](#database-column-types) table at the end of this guide for a breakdown of each option.
+</Admonition>
+
+3. Click the title and rename the database to something like `Task Tracker`.
+
+<img src={require('@site/static/img/TaskTracker-NameDatabase.png').default} alt="Name Database" width="80%" />
+<br /><br />
+
+You now have a blank task database ready for configuration.
+
+
+### Step 3: Set Up Your Table Structure
+
+Start customizing your table by renaming columns and adding new ones to suit your task tracking needs.
+
+---
+
+#### Suggested Table Structure
+
+| **Column Name** | **Type**   | **Purpose**                                 |
+|-----------------|------------|---------------------------------------------|
+| `Task Name`     | Title      | Clearly describe the task                   |
+| `Status`        | Select     | Track task state: `Not Started`, `In Progress`, `Done` |
+| `Priority`      | Multi-Select | Flag priority: `High`, `Medium`, `Low`     |
+| `Due Date`      | Date       | Target completion date                      |
+| `Notes`         | Text/URL   | Extra details, links, or commands           |
+
+<Admonition type="note" title="Tip">
+To change a column’s type, click its name → **Property Type** → choose the correct option.
+</Admonition>
+
+---
+
+#### Customize Columns
+
+1. Click the first column (`Title`) and rename it to **Task Tracker**.
+
+2. Click **Add Property** to add a new column.
+
+<img src={require('@site/static/img/TaskTracker-AddProperty.png').default} alt="Add Property" width="80%" />
+<br /><br />
+
+3. From the popup, select **Select**.
+
+<Admonition type="note" title="Need Column Help?">
+See the [**Database Column Types**](#database-column-types) table at the end of this guide for a breakdown of each option.
+</Admonition>
+
+<img src={require('@site/static/img/TaskTracker-SelectProperty.png').default} alt="Select Property" width="40%" />
+<br /><br />
+
+4. Rename the new column to **Status**.
+
+<img src={require('@site/static/img/TaskTracker-NameStatus.png').default} alt="Name Status" width="40%" />
+<br /><br />
+
+5. Add the options: `Not Started`, `In Progress`, `Done`.
+
+6. Click **+** to add another column.
+
+<img src={require('@site/static/img/TaskTracker-AddColumn.png').default} alt="Add Column" width="40%" />
+<br /><br />
+
+7. Choose **Multi-select**.
+
+<Admonition type="note" title="Need Column Help?">
+See the [**Database Column Types**](#database-column-types) table at the end of this guide for a breakdown of each option.
+</Admonition>
+
+<img src={require('@site/static/img/TaskTracker-MultiSelect.png').default} alt="Multi-select" width="40%" />
+<br /><br />
+
+8. Rename the column to **Priority**.
+
+<img src={require('@site/static/img/TaskTracker-NamePriority.png').default} alt="Priority Name" width="40%" />
+<br /><br />
+
+9. Add your priority tags.
+
+10. Click **+** to add a column, and choose **Date**.
+
+<Admonition type="note" title="Tip">
+You can configure date columns to include time if needed.
+</Admonition>
+
+<img src={require('@site/static/img/TaskTracker-Date.png').default} alt="Date Column" width="40%" />
+<br /><br />
+
+11. Rename the column to **Due Date**.
+
+<img src={require('@site/static/img/TaskTracker-NameDueDate.png').default} alt="Due Date" width="40%" />
+<br /><br />
+
+12. Add one more column by clicking **+**, and select **Text**.
+
+<img src={require('@site/static/img/TaskTracker-AddColumn.png').default} alt="Add Column Again" width="40%" />
+<br /><br />
+
+13. Rename this column to **Notes**.
+
+<img src={require('@site/static/img/TaskTracker-NameNotes.png').default} alt="Name Notes" width="40%" />
+<br /><br />
+
+
+---
+
+### Database Column Types
+
+Use this reference to understand each available Notion column type and how to apply it in your task tracker.
+
+| **Column Type**      | **Purpose / Use Case**                                                                 |
+|----------------------|----------------------------------------------------------------------------------------|
+| **Title**            | Primary identifier for the row (usually the task or item name).                        |
+| **Text**             | Freeform text notes or descriptions.                                                   |
+| **Number**           | Stores numeric values. Supports formatting (currency, percentage, etc.).               |
+| **Select**           | Choose one option from a list (e.g., status).                                           <br /><br /> <img src={require('@site/static/img/TaskTracker-AddOption.png').default} width="40%" /> |
+| **Multi-select**     | Choose multiple tags or categories from a list (e.g., `High`, `Low`, `Urgent`).        <br /><br /> <img src={require('@site/static/img/TaskTracker-AddOption.png').default} width="40%" /> |
+| **Date**             | Assign single or range-based dates (optionally with time).                             |
+| **Person**           | Assign to one or more Notion collaborators.                                            |
+| **Files & Media**    | Attach or embed documents, images, videos, or links.                                   |
+| **Checkbox**         | Toggle for binary tracking like complete/incomplete.                                   |
+| **URL**              | Store clickable web links.                                                             |
+| **Email**            | Capture email addresses as mailto links.                                               |
+| **Phone**            | Save phone numbers (supports tel: link behavior).                                      |
+| **Formula**          | Write custom logic (like calculated deadlines or priorities).                          |
+| **Relation**         | Link to another Notion database or item.                                               |
+| **Rollup**           | Aggregate or calculate values from related entries.                                    |
+| **Created Time**     | Auto-filled timestamp for row creation.                                                |
+| **Created By**       | Auto-filled with the user who created the row.                                         |
+| **Last Edited Time** | Timestamp for the most recent edit.                                                    |
+| **Last Edited By**   | Tracks the user who last edited the row.                                               |
+
+---
+
+### Add Your Tasks
+
+Once your columns are created, begin entering your tasks:
+
+- Initialize Docusaurus project  
+- Fix dark/light mode CSS  
+- Deploy to GitHub Pages  
+- Add Notion tracker guide (this!)  
+
+<Admonition type="tip" title="Pro Tip">
+Use keyboard shortcuts in Notion to speed up entry. For example, `Cmd + Enter` (Mac) or `Ctrl + Enter` (Windows) saves a row.
+</Admonition>
+
+---
+
+### Use It!
+
+- **Sort** by due date or priority to stay on top of deadlines  
+- **Filter** by status to see what's in progress  
+- **Switch Views**: Toggle to **Board** view using `/board` for a kanban-style workflow  
+
+<Admonition type="tip" title="Optional Views">
+Create multiple views (Table, Board, Calendar) for flexibility in how you manage your work.
+</Admonition>
+
+---
+
+## Why Use This?
+
+- Organize your portfolio development  
+- Stay focused and accountable  
+- Showcase your project management skills in interviews and client demos  
+
+---
+
+[← Back to Home](/)
