@@ -8,22 +8,26 @@ export default function Home() {
     <Layout
       title="Welcome to KneekoCo"
       description="Your documentation, simplified.">
-      <main className="homepage" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-
+      <main
+        className="homepage"
+        style={{ padding: '4rem 2rem', textAlign: 'center' }}
+      >
         <img
-          src={useBaseUrl('img/ThaLogo.png')}
+          src={useBaseUrl('/img/ThaLogo.png')}
           alt="KneekoCo Logo"
           style={{ maxWidth: '200px', marginBottom: '2rem' }}
         />
 
-       <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
+        <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
+        <p style={{ fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
+         y
+        </p>
 
-       
         <Link
-          to="/docs/welcome/"
+          to="/docs/welcome" // <-- use correct link path
           style={{
             display: 'inline-block',
-            marginTop: '1.5rem',
+            marginTop: '2rem',
             padding: '0.75rem 1.5rem',
             background: '#a02124',
             color: '#fff',
@@ -31,8 +35,9 @@ export default function Home() {
             textDecoration: 'none',
             fontWeight: 'bold',
             fontSize: '1rem',
-          }}>
-          Welcome
+          }}
+        >
+          Get Started
         </Link>
       </main>
     </Layout>
