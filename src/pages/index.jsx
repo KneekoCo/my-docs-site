@@ -6,7 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 export default function Home() {
   return (
     <Layout
-      title="Welcome to KneekoCo"
+      title="Welcome to Kneeko Co"
       description="Your documentation, simplified.">
       <main
         className="homepage"
@@ -19,9 +19,9 @@ export default function Home() {
         />
 
         <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
-        <p style={{ fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
-         y
-        </p>
+        
+         
+       
 
         <Link
           to="/docs/welcome" // <-- use correct link path

@@ -23,21 +23,18 @@ const config = {
     locales: ['en'],
   },
 
-  presets: [
-    [
-      'classic',
-      {
-        docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/KneekoCo/my-docs-site',
-        },
-        blog: false,
-        theme: {
-          customCss: require.resolve('./src/css/custom.css'),
-        },
+presets: [
+  [
+    '@docusaurus/preset-classic',
+    {
+      docs: {
+        sidebarPath: require.resolve('./sidebars.js'),
+        routeBasePath: 'docs', // or '/' if using as root
       },
-    ],
+      // other options...
+    },
   ],
+],
 
   themeConfig: {
     image: 'img/ThaLogo.png',
