@@ -18,7 +18,7 @@ export default function Home() {
 
        <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
 
-        <p style={{ fontSize: '1.2rem', margin: '1rem 0' }}>Let's document easy.</p>
+       
         <Link
           to="/docs/welcome/"
           style={{
@@ -32,7 +32,7 @@ export default function Home() {
             fontWeight: 'bold',
             fontSize: '1rem',
           }}>
-          Get Started
+          Welcome
         </Link>
       </main>
     </Layout>
