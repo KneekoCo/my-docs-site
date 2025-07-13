@@ -20,7 +20,7 @@ export default function Home() {
 
        
         <Link
-          to="/docs/getting-started/"
+          to="/docs/welcome/"
           style={{
             display: 'inline-block',
             marginTop: '1.5rem',
