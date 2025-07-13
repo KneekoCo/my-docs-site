@@ -32,7 +32,7 @@ export default function Home() {
             fontWeight: 'bold',
             fontSize: '1rem',
           }}>
-          Get Started
+          Welcome
         </Link>
       </main>
     </Layout>
