@@ -6,31 +6,39 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 export default function Home() {
   return (
     <Layout
-      title="KneekoCo Docs Portfolio"
-      description="A showcase of MDX-based technical documentation using Docusaurus.">
-      <main style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+      title="Welcome to Kneeko Co"
+      description="Your documentation, simplified.">
+      <main
+        className="homepage"
+        style={{ padding: '4rem 2rem', textAlign: 'center' }}
+      >
         <img
-          src={useBaseUrl('img/ThaLogo.png')}
+          src={useBaseUrl('/img/ThaLogo.png')}
           alt="KneekoCo Logo"
-          style={{ maxWidth: '150px', marginBottom: '1.5rem' }}
+          style={{ maxWidth: '200px', marginBottom: '2rem' }}
         />
-        <h1>Welcome to My Documentation Portfolio</h1>
-        <p>
-          Explore how I use <strong>Docusaurus</strong> to deliver developer-friendly documentation experiences.
-        </p>
 
-        <div style={{ marginTop: '2rem' }}>
-          <Link className="button button--primary" to="/docs">
-            View My Docs
-          </Link>
-          <Link
-            className="button button--secondary"
-            style={{ marginLeft: '1rem' }}
-            to="https://github.com/KneekoCo/my-docs-site"
-          >
-            GitHub Repo
-          </Link>
-        </div>
+        <h1 className="homepage-title">Welcome to KneekoCo Docs</h1>
+        
+         
+       
+
+        <Link
+          to="/docs/welcome" // <-- use correct link path
+          style={{
+            display: 'inline-block',
+            marginTop: '2rem',
+            padding: '0.75rem 1.5rem',
+            background: '#a02124',
+            color: '#fff',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+          }}
+        >
+          Get Started
+        </Link>
       </main>
     </Layout>
   );
