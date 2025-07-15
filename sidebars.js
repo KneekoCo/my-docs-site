@@ -1,15 +1,11 @@
-presets: [
-  [
-    '@docusaurus/preset-classic',
-    {
-      docs: {
-        routeBasePath: 'docs',
-        sidebarPath: require.resolve('./sidebars.js'),
-        editUrl: 'https://github.com/your/repo/edit/main/',
-        // 👇 THIS LINE
-        docLayoutComponent: '@theme/DocPage',
-        docItemComponent: '@theme/DocItem',
-      },
-    },
+// @ts-check
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
+const sidebars = {
+  tutorialSidebar: [
+    'welcome',               // 👈 This matches /docs/welcome.mdx
+    'notion-task-tracker',   // 👈 This matches /docs/notion-task-tracker.mdx
   ],
-],
+};
+
+export default sidebars;
