@@ -20,7 +20,7 @@ export default function Home() {
         </p>
 
         <div style={{ marginTop: '2rem' }}>
-          <Link className="button button--primary" to="/docs/welcome">
+          <Link className="button button--primary" to="/docs">
             View My Docs
           </Link>
           <Link
