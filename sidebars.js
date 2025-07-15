@@ -1,11 +1,14 @@
-// @ts-check
-
-/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   tutorialSidebar: [
-    'welcome',               // 👈 This matches /docs/welcome.mdx
-    'notion-task-tracker',   // 👈 This matches /docs/notion-task-tracker.mdx
+    {
+      type: 'doc',
+      id: 'welcome', // becomes /
+      label: 'Home',
+    },
+    {
+      type: 'doc',
+      id: 'notion-task-tracker',
+      label: 'Notion Task Tracker',
+    },
   ],
 };
-
-export default sidebars;
