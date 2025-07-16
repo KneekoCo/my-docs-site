@@ -70,7 +70,17 @@ export default function Home() {
         </Link>
          <Link
             className="button button--secondary"
-            style={{ marginLeft: '1rem' }}
+            style={{
+            display: 'inline-block',
+            marginTop: '2rem',
+            padding: '0.75rem 1.5rem',
+            background: '#EBEDF0',
+            color: '#fff',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+          }}
             to="https://github.com/KneekoCo/my-docs-site"
           >
             GitHub Repo
