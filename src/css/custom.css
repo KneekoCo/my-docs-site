@@ -1,12 +1,11 @@
 /**
  * Global Custom Styles for KneekoCo Docs
- * Applies styles to both light and dark themes with brand colors
+ * Applies styles to both light and dark themes using brand colors
  */
 
 /* ============================= */
 /* ====== GLOBAL VARIABLES ===== */
 /* ============================= */
-
 :root {
   /* Brand Colors */
   --ifm-color-primary: #a02124;
@@ -17,14 +16,14 @@
   --ifm-color-primary-lighter: #c84145;
   --ifm-color-primary-lightest: #d9525a;
 
-  /* Base Typography */
+  /* Typography */
   --ifm-font-family-base: 'Segoe UI', 'Helvetica Neue', sans-serif;
   --ifm-heading-font-weight: 700;
   --ifm-font-weight-semibold: 600;
   --ifm-font-size-base: 16px;
   --ifm-line-height-base: 1.6;
 
-  /* Light Theme Colors */
+  /* Light Theme Base */
   --ifm-background-color: #ffffff;
   --ifm-color-content: #111111;
   --ifm-table-background-header: #f5f5f5;
@@ -32,9 +31,10 @@
 }
 
 /* ============================= */
-/* ====== DARK MODE OVERRIDES == */
+/* ===== DARK MODE OVERRIDES === */
 /* ============================= */
 [data-theme='dark'] {
+  /* Adjust primary colors for better contrast on dark backgrounds */
   --ifm-color-primary: #ff5c5c;
   --ifm-color-primary-dark: #e44b4b;
   --ifm-color-primary-darker: #c14040;
@@ -50,9 +50,8 @@
 }
 
 /* ============================= */
-/* ====== SITE-WIDE STYLES ===== */
+/* ===== SITE-WIDE STYLES ===== */
 /* ============================= */
-
 #__docusaurus {
   background-color: var(--ifm-background-color);
   color: var(--ifm-color-content);
@@ -65,7 +64,7 @@
   background-color: #111 !important;
 }
 
-/* Toggle icon fix */
+/* Toggle icon (for theme switcher, etc.) */
 button[class*="toggle"] svg {
   fill: var(--ifm-color-content-inverse, #ffffff) !important;
 }
@@ -74,18 +73,20 @@ button[class*="toggle"]:hover svg {
   fill: var(--ifm-color-primary-lightest) !important;
 }
 
+/* Logo styling */
 .navbar__logo img {
   max-height: 48px;
   border-radius: 6px;
 }
 
+/* Navbar text and links */
 .navbar__title,
 .navbar__item {
   color: #fff !important;
 }
 
 /* ============================= */
-/* ====== HOMEPAGE STYLES ===== */
+/* ===== HOMEPAGE STYLES ====== */
 /* ============================= */
 .homepage main {
   background-color: var(--ifm-background-color);
@@ -140,7 +141,7 @@ table th {
   font-weight: 600;
 }
 
-/* Zebra striping */
+/* Zebra striping for better readability */
 table tr:nth-child(even) {
   background-color: rgba(0, 0, 0, 0.03);
 }
@@ -148,4 +149,3 @@ table tr:nth-child(even) {
 [data-theme='dark'] table tr:nth-child(even) {
   background-color: #2a2a2a;
 }
-

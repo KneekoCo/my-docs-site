@@ -1,23 +1,30 @@
 /**
  * CSS files with the .module.css suffix will be treated as CSS modules
  * and scoped locally.
+ * 
+ * This means the styles here will not leak into the global scope.
+ * Instead, they must be imported into a component (e.g., HomePage.jsx)
+ * and applied using styles.heroBanner or styles.buttons.
  */
 
+/* Hero banner section - main container styling */
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+  padding: 4rem 0;         /* Vertical padding to space out the content */
+  text-align: center;      /* Center-align all text and inline content */
+  position: relative;      /* Allows for layering or positioning child elements */
+  overflow: hidden;        /* Hides any overflowing child content */
 }
 
+/* Responsive tweak for smaller screens */
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 2rem;         /* Reduce padding on mobile/tablet for better fit */
   }
 }
 
+/* Button container styling */
 .buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex;           /* Use flexbox layout */
+  align-items: center;     /* Vertically center the buttons */
+  justify-content: center; /* Horizontally center the buttons */
 }

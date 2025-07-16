@@ -1,69 +1,90 @@
+// Enable TypeScript type checking for this config file
 // @ts-check
+
+// Import available code highlighting themes from prism-react-renderer
 import { themes as prismThemes } from 'prism-react-renderer';
 
+// Define the configuration object for your Docusaurus site
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'KneekoCo',
-  tagline: 'Lets Document Easy',
-  favicon: 'img/ThaLogo.png',
+  // Site metadata
+  title: 'KneekoCo',                         // Title of your documentation site
+  tagline: 'Lets Document Easy',             // Short description that appears in metadata
+  favicon: 'img/ThaLogo.png',                // Path to the favicon image
 
-  url: 'https://kneekoco.github.io',
-  baseUrl: '/my-docs-site/',
+  // Base URL settings for deployment
+  url: 'https://kneekoco.github.io',         // Your website's domain
+  baseUrl: '/my-docs-site/',                 // Path under which the site is served (GitHub Pages subfolder)
 
-  organizationName: 'KneekoCo', // GitHub username
-  projectName: 'my-docs-site',  // GitHub repo
-  deploymentBranch: 'gh-pages',
+  // GitHub repo information for deployment
+  organizationName: 'KneekoCo',              // GitHub username or org
+  projectName: 'my-docs-site',               // Repository name
+  deploymentBranch: 'gh-pages',              // Branch used for static site deployment
 
-  trailingSlash: false,
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  // Docusaurus behavior settings
+  trailingSlash: false,                      // Do not add trailing slashes to URLs
+  onBrokenLinks: 'warn',                     // Show a warning when a broken link is found
+  onBrokenMarkdownLinks: 'warn',             // Show a warning when a broken Markdown link is found
 
+  // Internationalization settings (i18n)
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'en',                     // Default language
+    locales: ['en'],                         // Supported languages
   },
 
-presets: [
-  [
-    '@docusaurus/preset-classic',
-    {
-      docs: {
-        sidebarPath: require.resolve('./sidebars.js'),
-        routeBasePath: 'docs', // or '/' if using as root
+  // Configure the content preset
+  presets: [
+    [
+      '@docusaurus/preset-classic',          // Use the "classic" preset
+      {
+        docs: {
+          sidebarPath: require.resolve('./sidebars.js'), // Path to the sidebar configuration
+          routeBasePath: 'docs',                         // URL path for documentation pages
+          // If you want the docs to be at the site root, use routeBasePath: '/'
+        },
+        // You can also add blog or pages here if needed
       },
-      // other options...
-    },
+    ],
   ],
-],
 
+  // Configure theme and UI options
   themeConfig: {
-    image: 'img/ThaLogo.png',
+    image: 'img/ThaLogo.png',                 // Default image used in meta tags for social sharing
+
+    // Color mode (light/dark theme) settings
     colorMode: {
-      defaultMode: 'light',
-      disableSwitch: false,
-      respectPrefersColorScheme: false,
+      defaultMode: 'light',                   // Default color theme
+      disableSwitch: false,                   // Allow users to switch themes
+      respectPrefersColorScheme: false,       // Ignore system color scheme
     },
+
+    // Configure the site navigation bar
     navbar: {
-      title: 'KneekoCo',
+      title: 'KneekoCo',                      // Title shown in the navbar
       logo: {
-        alt: 'KneekoCo Logo',
-        src: 'img/ThaLogo.png',
+        alt: 'KneekoCo Logo',                 // Alt text for the logo image
+        src: 'img/ThaLogo.png',               // Path to the logo image
       },
       items: [
-        { type: 'search', position: 'right' },
-        { href: 'https://github.com/KneekoCo/my-docs-site', label: 'GitHub', position: 'right' },
+        { type: 'search', position: 'right' },                             // Add a search bar
+        { href: 'https://github.com/KneekoCo/my-docs-site', label: 'GitHub', position: 'right' }, // GitHub repo link
       ],
     },
+
+    // Configure the site footer
     footer: {
-      style: 'dark',
-      links: [],
-      copyright: `Copyright © ${new Date().getFullYear()} KneekoCo, LLC.`,
+      style: 'dark',                          // Footer background style (dark or light)
+      links: [],                              // Add footer links here if needed
+      copyright: `Copyright © ${new Date().getFullYear()} KneekoCo, LLC.`, // Dynamic year
     },
+
+    // Syntax highlighting theme configuration
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: prismThemes.github,              // Light mode syntax highlighting theme
+      darkTheme: prismThemes.dracula,         // Dark mode syntax highlighting theme
     },
   },
 };
 
+// Export the config object so Docusaurus can use it
 export default config;
