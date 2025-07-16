@@ -69,7 +69,7 @@ export default function Home() {
           Get Started
         </Link>
          <Link
-            className="button button--secondary"
+            
             style={{ display: 'inline-block', color: '#000000',marginTop: '2rem',  padding: '0.75rem 1.5rem',borderRadius: '8px',
             textDecoration: 'none',
             fontWeight: 'bold',
