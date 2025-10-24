@@ -3,3 +3,81 @@ id: sharepoint-recipes-backend
 title: SharePoint Recipes Backend (PnP.PowerShell)
 sidebar_position: 5
 ---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# SharePoint Backend: Recipe + Shopping List (PnP.PowerShell 3.1.0)
+
+This guide provisions a **minimal, reliable SharePoint backend** for a recipe app:
+
+- **Recipes** list (title, yield, instructions, notes)
+- **RecipeIngredients** list (ingredient name, quantity display, section, have at home, purchased, `RecipeId` foreign key)
+- Views: **All Ingredients** (default), **Need to Buy**, **Have at Home**
+- **Idempotent** PowerShell—safe to re-run
+
+> Works with **PnP.PowerShell 3.1.0** and **PowerShell 7+**.
+
+---
+
+## 1 One-time Entra ID app (Admin)
+
+Do this once per tenant.
+
+1. **Register app**
+   - Entra ID → **App registrations** → **New registration**
+   - Name: `Kneeko PnP Interactive`
+   - Supported account types: **Single tenant**
+   - Redirect URI → **Mobile & desktop applications** → `http://localhost`
+   - Create → copy **Application (client) ID**.
+
+2. **Enable public client**
+   - App → **Authentication**
+   - **Allow public client flows** = **Yes**
+   - Ensure `http://localhost` is listed in **Mobile & desktop applications**.
+
+3. **API permissions (Delegated)**
+   - App → **API permissions** → **Add a permission**
+     - **Microsoft Graph** → Delegated → **User.Read**, **openid**, **offline_access**
+     - **SharePoint** → Delegated → **AllSites.FullControl**
+   - Click **Grant admin consent**.
+
+:::tip
+You only do this once. Keep your **Tenant** (e.g., `kneekocollc.onmicrosoft.com`) and your **Client ID** handy.
+:::
+
+---
+
+## 2 Install prerequisites (Developer machine)
+
+
+
+```powershell
+# Check you're in PowerShell 7+ (NOT Windows PowerShell 5.1)
+$PSVersionTable.PSVersion
+
+# Install module (current user)
+Install-Module PnP.PowerShell -Scope CurrentUser
+
+# Import module
+Import-Module PnP.PowerShell -Force
+</TabItem> <TabItem value="why" label="Why not 5.1?">
+PnP.PowerShell 3.1.0 requires PowerShell 7.4.6+.
+If you see Modules_InsufficientPowerShellVersion or commands like Connect-PnPOnline are not found, you’re likely in Windows PowerShell 5.1. Launch PowerShell 7 (pwsh).
+
+</TabItem> </Tabs>
+3 Connect to your site
+Set your variables (replace the example values as needed):
+
+powershell
+Copy code
+$Tenant   = "kneekocollc.onmicrosoft.com"
+$ClientId = "71a31728-4750-48df-ab6e-ec8750da48bf"  # your app's Client ID
+$SiteUrl  = "https://kneekocollc.sharepoint.com/sites/recipesapp"
+
+Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
+Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
+
+# Quick sanity check:
+Get-PnPWeb | Format-List Title,Url
