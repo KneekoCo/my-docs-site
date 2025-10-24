@@ -124,21 +124,23 @@ Install PowerShell 7 (aka pwsh) from Microsoft, then launch PowerShell 7 (black 
 ```
 $PSVersionTable.PSEdition  # expect "Core" for PowerShell 7+
 ```
-:::
+
 
 If it prints `Desktop`, you’re in Windows PowerShell 5.1—close it and open PowerShell 7.
 
-Common fixes
+:::
 
-Command not found / weird output: You might be in CMD or bash. Open PowerShell 7 and rerun.
+#### Common fixes
 
-Still seeing 5.1: You opened the wrong app. Choose the icon that isn’t labeled “Windows PowerShell.”
+- Command not found / weird output: You might be in CMD or bash. Open PowerShell 7 and rerun.
 
-Step 2 — Install the PnP.PowerShell module (current user only)
-powershell
-Copy code
+- Still seeing 5.1: You opened the wrong app. Choose the icon that isn’t labeled “Windows PowerShell.”
+
+### Step 2 — Install the PnP.PowerShell module (current user only)
+```
 # Install module (current user)
 Install-Module PnP.PowerShell -Scope CurrentUser
+```
 Explanation
 
 What it does: Installs PnP.PowerShell from the PowerShell Gallery into your user profile (no admin rights needed).
@@ -153,41 +155,41 @@ Untrusted repository (PSGallery)? Type Y and press Enter.
 
 Non-interactive install (skips prompts)
 
-powershell
-Copy code
+```
 Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+```
 Troubleshooting
 
 Install-Module not recognized: You’re in Windows PowerShell or a non-PowerShell shell. Open PowerShell 7 and retry.
 
 TLS/handshake errors (corp network):
 
-powershell
-Copy code
+```
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+```
 Install-Module PnP.PowerShell -Scope CurrentUser
 Proxy required (replace values):
 
-powershell
-Copy code
+```
 [system.net.webrequest]::DefaultWebProxy = New-Object system.net.webproxy('http://proxy:8080')
 [system.net.webrequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
+```
 Install-Module PnP.PowerShell -Scope CurrentUser
 Conflicts with old PnP modules:
 
-powershell
-Copy code
+```
 Get-Module SharePointPnPPowerShell* -ListAvailable | Uninstall-Module -Force -AllVersions
 Install-Module PnP.PowerShell -Scope CurrentUser -Force
+```
 Safe to re-run? Yes. Re-running ensures the module is present; with -Force it will also update if needed.
 
 Step 3 — Load the module into the current session
-powershell
-Copy code
+```
 # Import module
 Import-Module PnP.PowerShell -Force
+```
 Explanation
 
 What it does: Loads the module’s commands into your current PowerShell session.
@@ -196,10 +198,10 @@ Why it matters: Makes cmdlets like Connect-PnPOnline, Get-PnPList, etc., immedia
 
 Verify it loaded
 
-powershell
-Copy code
+```
 Get-Module PnP.PowerShell
 Get-Command -Module PnP.PowerShell | Select-Object -First 5
+```
 Expected
 
 plaintext
@@ -217,22 +219,23 @@ Common errors & fixes
 
 “Import-Module … not loaded / no valid module file found”
 
-powershell
-Copy code
+```
 Install-Module PnP.PowerShell -Scope CurrentUser -Force
 Import-Module PnP.PowerShell -Force
+```
 Conflicting versions loaded
 
-powershell
-Copy code
+```
 Remove-Module PnP.PowerShell -Force
 Import-Module PnP.PowerShell -Force
+```
 Quick sanity check (optional but recommended)
-powershell
-Copy code
+```
 # Confirm a few commands exist and the module responds
 (Get-Command Connect-PnPOnline).Source
 (Get-Command Get-PnPWeb).Source
+```
+
 Expected
 
 plaintext
@@ -246,12 +249,11 @@ No edits needed for a standard setup.
 
 To pin a version for team consistency:
 
-powershell
-Copy code
+```
 Install-Module PnP.PowerShell -Scope CurrentUser -RequiredVersion 3.13.190
 Import-Module PnP.PowerShell -RequiredVersion 3.13.190 -Force
 If your org uses an internal repository, replace PSGallery with your repository name in the Set-PSRepository step.
-
+```
 Copy code
 
 
