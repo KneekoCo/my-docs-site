@@ -1,11 +1,11 @@
 // @ts-check
-
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   tutorialSidebar: [
-    'welcome',               // 👈 This matches /docs/welcome.mdx
-    'notion-task-tracker',   // 👈 This matches /docs/notion-task-tracker.mdx
+    'welcome',
+    'notion-task-tracker',
+    'sharepoint-recipes-backend',
   ],
 };
 
-export default sidebars;
+module.exports = sidebars;        // ← use this for CommonJS projects
