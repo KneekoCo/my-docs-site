@@ -4,7 +4,7 @@ const sidebars = {
   tutorialSidebar: [
     'welcome',
     'notion-task-tracker',
-    'sharepoint-recipes-backend',
+    'docs/sharepoint-recipes-backend',
   ],
 };
 
