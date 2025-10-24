@@ -4,80 +4,409 @@ title: SharePoint Recipes Backend (PnP.PowerShell)
 sidebar_position: 5
 ---
 
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # SharePoint Backend: Recipe + Shopping List (PnP.PowerShell 3.1.0)
 
-This guide provisions a **minimal, reliable SharePoint backend** for a recipe app:
+This guide provisions a **minimal, reliable SharePoint backend** for a recipe app.
 
-- **Recipes** list (title, yield, instructions, notes)
-- **RecipeIngredients** list (ingredient name, quantity display, section, have at home, purchased, `RecipeId` foreign key)
-- Views: **All Ingredients** (default), **Need to Buy**, **Have at Home**
+- **Recipes** list (title, yield, instructions, notes)  
+- **RecipeIngredients** list (ingredient name, quantity display, section, have at home, purchased, `RecipeId` foreign key)  
+- Views: **All Ingredients** (default), **Need to Buy**, **Have at Home**  
 - **Idempotent** PowerShell—safe to re-run
 
 > Works with **PnP.PowerShell 3.1.0** and **PowerShell 7+**.
 
 ---
 
-## 1 One-time Entra ID app (Admin)
+## 1 One-time Entra ID App (Admin) — Beginner Step-by-Step
 
-Do this once per tenant.
+**Goal:** Create a public client app in Entra ID with delegated permissions for PnP interactive auth.
 
-1. **Register app**
-   - Entra ID → **App registrations** → **New registration**
-   - Name: `Kneeko PnP Interactive`
-   - Supported account types: **Single tenant**
-   - Redirect URI → **Mobile & desktop applications** → `http://localhost`
-   - Create → copy **Application (client) ID**.
+### Before you start
 
-2. **Enable public client**
-   - App → **Authentication**
-   - **Allow public client flows** = **Yes**
-   - Ensure `http://localhost` is listed in **Mobile & desktop applications**.
+- Entra ID admin rights to register apps and grant admin consent.  
+- Do this **once per tenant**.  
+- Keep your **Tenant** (e.g., `your_site.onmicrosoft.com`) and **Application (client) ID**.
 
-3. **API permissions (Delegated)**
-   - App → **API permissions** → **Add a permission**
-     - **Microsoft Graph** → Delegated → **User.Read**, **openid**, **offline_access**
-     - **SharePoint** → Delegated → **AllSites.FullControl**
-   - Click **Grant admin consent**.
+### Steps
 
-:::tip
-You only do this once. Keep your **Tenant** (e.g., `kneekocollc.onmicrosoft.com`) and your **Client ID** handy.
+#### 1. Register the app
+
+1. Entra ID → **App registrations** → **New registration**  
+2. **Name:** `PnP Interactive`  
+3. **Supported account types:** **Single tenant**  
+4. **Redirect URI:** **Mobile & desktop applications** → `http://localhost`  
+5. Click **Register**, then copy the **Application (client) ID**.
+
+:::tip What/Why
+**What it does:** Creates a public client app for interactive sign-in.  
+**Why it matters:** PnP uses device/interactive auth with a public client and localhost redirect.
 :::
+
+#### 2. Enable public client
+
+1. App → **Authentication**  
+2. **Allow public client flows** → **Yes**  
+3. Ensure `http://localhost` is listed under **Mobile & desktop applications**.
+
+:::tip What/Why
+**What it does:** Allows interactive flows from PowerShell.  
+**Why it matters:** Without this, `-Interactive` login fails.
+:::
+
+#### 3. Add delegated API permissions
+
+1. App → **API permissions** → **Add a permission**  
+2. **Microsoft Graph** → **Delegated** → `User.Read`, `openid`, `offline_access`  
+3. **SharePoint** → **Delegated** → `AllSites.FullControl`  
+4. Click **Grant admin consent**.
+
+:::tip What/Why
+**What it does:** Grants the delegated permissions PnP needs to manage SharePoint.  
+**Why it matters:** PnP cmdlets call Graph/SharePoint APIs under your identity.
+:::
+
+### Sanity check
+
+- **Authentication** shows public client enabled.  
+- **API permissions** list includes the entries above and shows **Granted for &lt;Tenant&gt;**.
+
+### Common errors & quick fixes
+
+- **Cannot grant admin consent** → Use a Global Admin or Privileged Role Admin.  
+- **AADSTS700016 (app not found)** → Use the correct **Client ID** and **Tenant**.  
+- **Missing redirect URI** → Add `http://localhost` under **Mobile & desktop applications**.
+
+### Rollback / Rerun
+
+- You can delete and recreate the app if misconfigured.  
+- Store the **Client ID** securely for later sections.
 
 ---
 
-## 2 Install prerequisites (Developer machine)
+# 2 Install prerequisites (Developer machine)
 
+**Goal:** Confirm you’re running PowerShell 7+ and set up the PnP.PowerShell module so the scripts in this guide will work.
 
+---
+
+## Step 1 — Verify you’re in PowerShell 7+ (Core)
 
 ```powershell
 # Check you're in PowerShell 7+ (NOT Windows PowerShell 5.1)
 $PSVersionTable.PSVersion
+Explanation
+```
 
+`$PSVersionTable.PSVersion` prints the engine’s version (Major.Minor.Build).
+
+PnP.PowerShell targets PowerShell 7+; Windows PowerShell 5.1 will cause errors later.
+
+Expected (7+):
+```
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+7      4      5      0
+```
+Not good (5.1):
+
+```
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+5      1      22621  2506
+```
+
+:::tip If you see 5.x
+Install PowerShell 7 (aka pwsh) from Microsoft, then launch PowerShell 7 (black icon, not “Windows PowerShell”). Verify:
+
+```
+$PSVersionTable.PSEdition  # expect "Core" for PowerShell 7+
+```
+:::
+
+If it prints `Desktop`, you’re in Windows PowerShell 5.1—close it and open PowerShell 7.
+
+Common fixes
+
+Command not found / weird output: You might be in CMD or bash. Open PowerShell 7 and rerun.
+
+Still seeing 5.1: You opened the wrong app. Choose the icon that isn’t labeled “Windows PowerShell.”
+
+Step 2 — Install the PnP.PowerShell module (current user only)
+powershell
+Copy code
 # Install module (current user)
 Install-Module PnP.PowerShell -Scope CurrentUser
+Explanation
 
-# Import module
-Import-Module PnP.PowerShell -Force
-</TabItem> <TabItem value="why" label="Why not 5.1?">
-PnP.PowerShell 3.1.0 requires PowerShell 7.4.6+.
-If you see Modules_InsufficientPowerShellVersion or commands like Connect-PnPOnline are not found, you’re likely in Windows PowerShell 5.1. Launch PowerShell 7 (pwsh).
+What it does: Installs PnP.PowerShell from the PowerShell Gallery into your user profile (no admin rights needed).
 
-</TabItem> </Tabs>
-3 Connect to your site
-Set your variables (replace the example values as needed):
+Why it matters: Provides all the *-PnP* cmdlets used in this guide.
+
+First-time prompts you may see
+
+NuGet provider not installed? Type Y and press Enter.
+
+Untrusted repository (PSGallery)? Type Y and press Enter.
+
+Non-interactive install (skips prompts)
 
 powershell
 Copy code
-$Tenant   = "kneekocollc.onmicrosoft.com"
-$ClientId = "71a31728-4750-48df-ab6e-ec8750da48bf"  # your app's Client ID
-$SiteUrl  = "https://kneekocollc.sharepoint.com/sites/recipesapp"
+Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+Troubleshooting
 
+Install-Module not recognized: You’re in Windows PowerShell or a non-PowerShell shell. Open PowerShell 7 and retry.
+
+TLS/handshake errors (corp network):
+
+powershell
+Copy code
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Install-Module PnP.PowerShell -Scope CurrentUser
+Proxy required (replace values):
+
+powershell
+Copy code
+[system.net.webrequest]::DefaultWebProxy = New-Object system.net.webproxy('http://proxy:8080')
+[system.net.webrequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
+Install-Module PnP.PowerShell -Scope CurrentUser
+Conflicts with old PnP modules:
+
+powershell
+Copy code
+Get-Module SharePointPnPPowerShell* -ListAvailable | Uninstall-Module -Force -AllVersions
+Install-Module PnP.PowerShell -Scope CurrentUser -Force
+Safe to re-run? Yes. Re-running ensures the module is present; with -Force it will also update if needed.
+
+Step 3 — Load the module into the current session
+powershell
+Copy code
+# Import module
+Import-Module PnP.PowerShell -Force
+Explanation
+
+What it does: Loads the module’s commands into your current PowerShell session.
+
+Why it matters: Makes cmdlets like Connect-PnPOnline, Get-PnPList, etc., immediately available.
+
+Verify it loaded
+
+powershell
+Copy code
+Get-Module PnP.PowerShell
+Get-Command -Module PnP.PowerShell | Select-Object -First 5
+Expected
+
+plaintext
+Copy code
+ModuleType Version    Name
+---------- -------    ----
+Script     3.**.*     PnP.PowerShell
+
+CommandType Name                   Version Source
+----------- ----                   ------- ------
+Function    Add-PnPContentType     3.**.*  PnP.PowerShell
+Function    Add-PnPFile            3.**.*  PnP.PowerShell
+...
+Common errors & fixes
+
+“Import-Module … not loaded / no valid module file found”
+
+powershell
+Copy code
+Install-Module PnP.PowerShell -Scope CurrentUser -Force
+Import-Module PnP.PowerShell -Force
+Conflicting versions loaded
+
+powershell
+Copy code
+Remove-Module PnP.PowerShell -Force
+Import-Module PnP.PowerShell -Force
+Quick sanity check (optional but recommended)
+powershell
+Copy code
+# Confirm a few commands exist and the module responds
+(Get-Command Connect-PnPOnline).Source
+(Get-Command Get-PnPWeb).Source
+Expected
+
+plaintext
+Copy code
+PnP.PowerShell
+PnP.PowerShell
+If both return PnP.PowerShell, your environment is ready.
+
+Summary (editability notes)
+No edits needed for a standard setup.
+
+To pin a version for team consistency:
+
+powershell
+Copy code
+Install-Module PnP.PowerShell -Scope CurrentUser -RequiredVersion 3.13.190
+Import-Module PnP.PowerShell -RequiredVersion 3.13.190 -Force
+If your org uses an internal repository, replace PSGallery with your repository name in the Set-PSRepository step.
+
+Copy code
+
+
+# 3 Connect to your site
+
+**Goal:** Sign in to SharePoint Online with PnP.PowerShell using your tenant, app registration, and site URL—then verify the connection.
+
+---
+
+## Step-by-step (edit these placeholders, then run)
+
+
+# 1. Set your Microsoft 365 tenant primary domain (NOT a vanity custom domain)
+```powershell
+$Tenant   = "<your-tenant>.onmicrosoft.com"
+
+# 2. Set the Entra ID App Registration (Public client) you will use for interactive auth
+
+$ClientId = "<your-client-id-guid>"
+
+# 3. Set the SharePoint site you want to manage
+
+$SiteUrl  = "https://<your-tenant>.sharepoint.com/sites/<your-site>"
+
+# 4. Clear any cached tokens/sessions so you get a clean login
 Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
+
+# 5. Open an interactive sign-in window for this site and tenant using your app registration
 Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
 
-# Quick sanity check:
+# 6. Quick sanity check: read the current site’s title and URL to confirm connectivity
 Get-PnPWeb | Format-List Title,Url
+```
+
+## 4 Create the two lists (once)
+If they already exist, these commands just return the titles.
+
+```PowerShell
+New-PnPList -Title "Recipes" -Template GenericList -OnQuickLaunch -ErrorAction SilentlyContinue
+New-PnPList -Title "RecipeIngredients" -Template GenericList -OnQuickLaunch -ErrorAction SilentlyContinue
+
+Get-PnPList -Identity "Recipes","RecipeIngredients" | Select Title,ItemCount | Format-Table
+```
+## 5 Add columns to each list
+
+We’ll keep it simple and robust by using a numeric foreign key RecipeId (you can convert to a real Lookup later).
+
+```PowerShell
+# Recipes fields
+Add-PnPField -List "Recipes" -DisplayName "Yield"        -InternalName "Yield"        -Type Text -ErrorAction SilentlyContinue
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Instructions' DisplayName='Instructions' NumLines='10' RichText='FALSE' />"
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Notes'         DisplayName='Notes'         NumLines='10' RichText='FALSE' />"
+
+# RecipeIngredients fields
+Add-PnPField -List "RecipeIngredients" -DisplayName "Ingredient Name" -InternalName "IngredientName" -Type Text -ErrorAction SilentlyContinue
+Add-PnPField -List "RecipeIngredients" -DisplayName "Qty Display"     -InternalName "QtyDisplay"     -Type Text -ErrorAction SilentlyContinue
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Choice' Name='StoreSection' DisplayName='Store Section' Format='Dropdown'><CHOICES><CHOICE>Produce</CHOICE><CHOICE>Meat</CHOICE><CHOICE>Dairy</CHOICE><CHOICE>Pantry</CHOICE><CHOICE>Bakery</CHOICE><CHOICE>Frozen</CHOICE><CHOICE>Other</CHOICE></CHOICES></Field>"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='HaveAtHome' DisplayName='Have At Home' Default='0' />"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='Purchased'  DisplayName='Purchased'  Default='0' />"
+Add-PnPField -List "RecipeIngredients" -DisplayName "RecipeId"        -InternalName "RecipeId"      -Type Number -ErrorAction SilentlyContinue
+```
+
+## 6 Create helpful views
+```PowerShell
+# Recipes: simple default view
+try { Remove-PnPView -List "Recipes" -Identity "All Recipes" -ErrorAction SilentlyContinue } catch {}
+Add-PnPView -List "Recipes" -Title "All Recipes" -Fields @("LinkTitle","Yield") | Out-Null
+Set-PnPView -List "Recipes" -Identity "All Recipes" -Values @{ DefaultView = $true } | Out-Null
+
+# RecipeIngredients: 3 views
+$camlSort = "<Query><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"
+$camlNeed = "<Query><Where><And><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>0</Value></Eq><Eq><FieldRef Name='Purchased' /><Value Type='Boolean'>0</Value></Eq></And></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"
+$camlHave = "<Query><Where><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>1</Value></Eq></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"
+$fields   = @("LinkTitle","QtyDisplay","StoreSection","HaveAtHome","Purchased","RecipeId")
+
+foreach ($v in @("All Ingredients","Need to Buy","Have at Home")) {
+  try { Remove-PnPView -List "RecipeIngredients" -Identity $v -ErrorAction SilentlyContinue } catch {}
+}
+
+Add-PnPView -List "RecipeIngredients" -Title "All Ingredients" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "All Ingredients" -Values @{ Query = $camlSort; DefaultView=$true } | Out-Null
+
+Add-PnPView -List "RecipeIngredients" -Title "Need to Buy" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "Need to Buy" -Values @{ Query = $camlNeed } | Out-Null
+
+Add-PnPView -List "RecipeIngredients" -Title "Have at Home" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "Have at Home" -Values @{ Query = $camlHave } | Out-Null
+```
+
+## 7 Seed sample data (idempotent)
+```PowerShell
+function Get-RecipeIdOrCreate {
+  param([string]$Title,[string]$Yield,[string]$Instructions,[string]$Notes)
+
+  $caml = "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>$Title</Value></Eq></Where></Query></View>"
+  $existing = Get-PnPListItem -List "Recipes" -Query $caml -PageSize 1 -ErrorAction SilentlyContinue
+  if ($existing) { return $existing.Id }
+
+  (Add-PnPListItem -List "Recipes" -Values @{
+    "Title"=$Title; "Yield"=$Yield; "Instructions"=$Instructions; "Notes"=$Notes
+  }).Id
+}
+
+function Add-Ingredient {
+  param([int]$RecipeId,[string]$Name,[string]$Qty,[string]$Section,[bool]$HaveAtHome=$false,[bool]$Purchased=$false)
+
+  $caml = "<View><Query><Where><And>
+    <Eq><FieldRef Name='RecipeId' /><Value Type='Number'>$RecipeId</Value></Eq>
+    <Eq><FieldRef Name='Title' /><Value Type='Text'>$Name</Value></Eq>
+  </And></Where></Query></View>"
+
+  $existing = Get-PnPListItem -List "RecipeIngredients" -Query $caml -PageSize 1 -ErrorAction SilentlyContinue
+  if ($existing) { return }
+
+  Add-PnPListItem -List "RecipeIngredients" -Values @{
+    "Title"          = $Name
+    "IngredientName" = $Name
+    "QtyDisplay"     = $Qty
+    "StoreSection"   = $Section
+    "HaveAtHome"     = $HaveAtHome
+    "Purchased"      = $Purchased
+    "RecipeId"       = $RecipeId
+  } | Out-Null
+}
+
+$rid = Get-RecipeIdOrCreate -Title "Weeknight Chicken Pasta" `
+  -Yield "4 servings" `
+  -Instructions "Boil pasta; season & sauté chicken; reserve a little pasta water; toss with sauce; finish with parmesan." `
+  -Notes "Great for meal prep; 25–30 min total."
+
+Add-Ingredient -RecipeId $rid -Name "Chicken breast"   -Qty "1 lb / 450 g" -Section "Meat"
+Add-Ingredient -RecipeId $rid -Name "Penne pasta"      -Qty "12 oz / 340 g" -Section "Pantry"
+Add-Ingredient -RecipeId $rid -Name "Garlic"           -Qty "3 cloves"      -Section "Produce" -HaveAtHome:$true
+Add-Ingredient -RecipeId $rid -Name "Olive oil"        -Qty "2 tbsp"        -Section "Pantry"  -HaveAtHome:$true
+Add-Ingredient -RecipeId $rid -Name "Crushed tomatoes" -Qty "1 can (28 oz)" -Section "Pantry"
+Add-Ingredient -RecipeId $rid -Name "Parmesan"         -Qty "1/2 cup"       -Section "Dairy"
+Add-Ingredient -RecipeId $rid -Name "Basil"            -Qty "1 bunch"       -Section "Produce"
+```
+## 8 Verify + open in the browser
+
+```PowerShell
+Get-PnPList -Identity "Recipes","RecipeIngredients" | Select Title,ItemCount | Format-Table
+Get-PnPListItem -List "Recipes" -PageSize 50 | Select Id,Title | Format-Table
+Get-PnPListItem -List "RecipeIngredients" -PageSize 50 | Select Id,Title,QtyDisplay,StoreSection,HaveAtHome,Purchased,RecipeId | Format-Table
+
+$web = Get-PnPWeb
+"Recipes URL:           $($web.Url)/Lists/Recipes/AllItems.aspx"
+"RecipeIngredients URL: $($web.Url)/Lists/RecipeIngredients/AllItems.aspx"
+```
+
+## 9 Disconnect / end PowerShell
+```PowerShell
+# Disconnect your SharePoint connection
+Disconnect-PnPOnline
+
+# Optional: close the shell
+exit
+```

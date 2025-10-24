@@ -4,8 +4,8 @@ const sidebars = {
   tutorialSidebar: [
     'welcome',
     'notion-task-tracker',
-    'docs/sharepoint-recipes-backend',
+    'sharepoint-recipes-backend',   // <-- FIXED: no "docs/" prefix
   ],
 };
 
-module.exports = sidebars;        // ← use this for CommonJS projects
+module.exports = sidebars;
