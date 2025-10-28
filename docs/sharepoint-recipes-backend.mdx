@@ -2,212 +2,117 @@
 
 id: sharepoint-recipes-backend
 title: SharePoint Recipes Backend (PnP.PowerShell)
-sidebar_position: 5
--------------------
+--------------------------------------------------
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Admonition from '@theme/Admonition';
 
-# SharePoint Backend: Recipe + Shopping List (PnP.PowerShell)
+# How to Provision a SharePoint Backend for a Recipe + Shopping List Power App
 
-This page teaches beginners how to provision a **SharePoint backend** for a simple Power App using **PowerShell 7+ (`pwsh`)** and **PnP.PowerShell**. It’s written to showcase clear, instructional technical writing and a clean automation approach you can reuse in your portfolio.
-
-* **Lists**: `Recipes`, `RecipeIngredients`
-* **Core fields**: titles, yield, instructions, notes; ingredients, quantities, sections, flags, recipe link
-* **Views**: **All Ingredients** (default), **Need to Buy**, **Have at Home**
-* PowerShell is **idempotent** (safe to re‑run) and well‑commented
-
-> Assumes **PowerShell 7+** and **PnP.PowerShell** are available. Interactive auth is used.
-
-<!-- Screenshot: Docusaurus page rendered in the left sidebar -->
+Use this guide to teach beginners how to stand up a **SharePoint backend** using **PowerShell 7+ (`pwsh`)** and **PnP.PowerShell**. It mirrors the style of the Notion Task Tracker page—step‑by‑step, visuals, and short tips—while showcasing clean, portfolio‑ready automation.
 
 ---
 
-## Overview
+## What You’ll Build
 
-You will deploy two SharePoint lists that back a simple **Recipe + Shopping List** Power App. You’ll connect with `Connect-PnPOnline`, create or update lists, add fields, define views, and seed sample data. Everything is beginner‑friendly and copy/paste‑ready.
+* Two SharePoint lists: **`Recipes`**, **`RecipeIngredients`**
+* Core fields: titles, yield, instructions, notes; ingredients, quantities, sections, flags, numeric recipe link
+* Three views on **RecipeIngredients**: **All Ingredients** (default), **Need to Buy**, **Have at Home**
+* Idempotent scripts you can re‑run safely
 
-<!-- Screenshot: SharePoint site home -->
-
----
-
-## Prerequisites
-
-* **PowerShell 7+** (`pwsh`).
-* **PnP.PowerShell** module.
-* A **SharePoint site URL** where you have permission to create lists.
-* Your tenant uses modern SharePoint Online.
-
-> **Note**: Replace placeholders like `<contoso>` and `<your-site>` before running.
+<Admonition type="note" title="Assumptions">
+You’ll run **PowerShell 7+** and install **PnP.PowerShell**. Authentication uses a **public client** Entra ID app (no client secret).
+</Admonition>
 
 ---
 
-## What You’ll Deploy
+## Step-by-Step Instructions
 
-**Lists**
+### Step 1: Create a One‑Time Entra ID App (for Interactive Login)
 
-* **Recipes**: Title, Yield, Instructions, Notes
-* **RecipeIngredients**: Ingredient Name, Qty Display, Store Section, Have At Home, Purchased, RecipeId (number link to Recipes)
+1. Open **Entra ID** → **App registrations** → **New registration**
+   **Name:** `PnP Interactive` · **Accounts:** Single tenant · **Redirect URI:** *Mobile & desktop* → `http://localhost`
 
-**Views (RecipeIngredients)**
+<img src={require('@site/static/img/SP-RegisterAnApplication.png').default} alt="Register PnP Interactive app" width="80%" /> <br /><br />
 
-* **All Ingredients** *(default)* — all items, sorted by `Store Section`, then `Ingredient Name`.
-* **Need to Buy** — items where `Have At Home = No` **and** `Purchased = No`.
-* **Have at Home** — items where `Have At Home = Yes`.
+2. App → **Authentication** → **Allow public client flows** → **Yes**
+   Confirm `http://localhost` exists under **Mobile & desktop applications**.
+
+<img src={require('@site/static/img/SP-EnableFlows.png').default} alt="Enable public client flows" width="80%" /> <br /><br />
+
+3. App → **API permissions** → **Add a permission**
+
+   * **Microsoft Graph** → Delegated → `User.Read`, `openid`, `offline_access`
+   * **SharePoint** → Delegated → `AllSites.FullControl`
+     Click **Grant admin consent**.
+
+<img src={require('@site/static/img/SP-CheckGranted.png').default} alt="Grant admin consent" width="80%" /> <br /><br />
+
+4. Save your values
+   **Tenant domain** (e.g., `contoso.onmicrosoft.com`) and **Client ID (GUID)**.
+
+<img src={require('@site/static/img/SP-SaveTenantObject.png').default} alt="Save tenant and client id" width="80%" /> <br /><br />
+
+<Admonition type="warning" title="Mind the Tenant">
+Use your **onmicrosoft.com** domain for `$Tenant` (e.g., `contoso.onmicrosoft.com`), **not** a `sharepoint.com` URL.
+</Admonition>
 
 ---
 
-## One-Time Entra ID App (to get your Client ID)
+### Step 2: Verify PowerShell 7+
 
-**Goal:** Create a public client app so `Connect-PnPOnline -Interactive` works with your tenant.
-
-### Before you start
-
-* You need Entra ID permissions to register apps and grant admin consent.
-* You will capture two values: **Tenant domain** (e.g., `contoso.onmicrosoft.com`) and **Application (client) ID** (a GUID).
-
-### Steps
-
-1. **Register the app**
-
-   * [Entra ID](https://entra.microsoft.com/#home) → **App registrations** → **New registration**
-   * **Name:** `PnP Interactive` 
-   * **Supported account types:** **Single tenant**
-   * **Redirect URI:** **Mobile & desktop applications** → `http://localhost`
-   * Click **Register**, then copy the **Application (client) ID** (this is your “key”).
-
-<img src={require('@site/static/img/SP-RegisterAnApplication.png').default} alt="Add Database" width="80%" />
-<br></br><br></br>
-2. **Enable public client**
-
-   * App → **Authentication** → **Allow public client flows** → **Yes**
-   * Ensure `http://localhost` is present under **Mobile & desktop applications**.
-
-<img src={require('@site/static/img/SP-EnableFlows.png').default} alt="Add Database" width="80%" />
-<br></br>
-
-3. **Add delegated API permissions**
-
-   * App → **API permissions** → **Add a permission**
-   * **Microsoft Graph** → **Delegated** → `User.Read`, `openid`, `offline_access`
-   * **SharePoint** → **Delegated** → `AllSites.FullControl`
-   * Click **Grant admin consent** for your tenant.
-
-<img src={require('@site/static/img/SP-CheckGranted.png').default} alt="Add Database" width="80%" />
-<br></br>
-
-4. **Save your values**
-
-   * **Tenant domain:** e.g., `contoso.onmicrosoft.com`
-   * **Client ID (GUID):** e.g., `00000000-0000-0000-0000-000000000000`
-
-<img src={require('@site/static/img/SP-SaveTenantObject.png').default} alt="Add Database" width="80%" />
-<br></br>
-
-### Optional: set a default Client ID (so you don’t type it again)
+1. Open **PowerShell 7** (black icon) or run `pwsh`.
+2. Check the version:
 
 ```powershell
-[System.Environment]::SetEnvironmentVariable(
-  'ENTRAID_CLIENT_ID',
-  '00000000-0000-0000-0000-000000000000',  # your Client ID
-  [EnvironmentVariableTarget]::User
-)
-# New shells can now do:
-# Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -Interactive
+$PSVersionTable.PSEdition   # expect Core
+$PSVersionTable.PSVersion   # Major should be 7+
 ```
 
-### Common errors & one-line fixes
-
-* **“Please specify a valid client id”** → Add `-ClientId <your-guid>` to `Connect-PnPOnline`.
-* **“Access denied”** → Use an account with **Edit/Owner** rights on the site.
-* **Consent blocked** → Ask a Global/Privileged Role Admin to click **Grant admin consent**.
-* **Redirect URI issues** → Add `http://localhost` and **Allow public client flows = Yes**.
-
-### Security notes
-
-* This is a **public client** (no client secret). Do **not** add or store secrets.
-* If your org enforces Conditional Access, ensure interactive desktop flows are allowed for this app.
+<Admonition type="danger" title="Common Error">
+If you see **Windows PowerShell** 5.1, install PowerShell 7 and re‑open **pwsh**.
+</Admonition>
 
 ---
 
-## Step-by-Step Guide
-
-### Step 1 — Verify PowerShell 7+ (`$PSVersionTable.PSVersion`)
-
-**What it does:** Prints the engine version.
-
-**Why it matters:** PnP.PowerShell targets PowerShell 7+; 5.1 causes errors.
-
-```powershell
-$PSVersionTable.PSVersion
-```
-
-**Good (7+):**
-
-```
-Major  Minor  Build  Revision
------  -----  -----  --------
-7      4      5      0
-```
-
-**Not good (5.1):**
-
-```
-Major  Minor  Build  Revision
------  -----  -----  --------
-5      1      22621  2506
-```
-
-**Common error:** You ran this in Windows PowerShell 5.1.
-
-**Fix (one line):** Install and open **PowerShell 7** (`pwsh`), then retry.
-
----
-
-### Step 2 — Install/Import PnP.PowerShell (`Install-Module`, `Import-Module`)
-
-**What it does:** Installs and loads the module providing `*-PnP*` cmdlets.
-
-**Why it matters:** Needed to connect and manage SharePoint.
+### Step 3: Install & Import PnP.PowerShell
 
 ```powershell
 Install-Module PnP.PowerShell -Scope CurrentUser -Force
 Import-Module PnP.PowerShell -Force
 ```
 
-**Common prompts:** NuGet provider install; trust PSGallery → answer `Y`.
-
-**Common error:** `Install-Module` not recognized.
-
-**Fix (one line):** Open **PowerShell 7** and rerun the commands.
+<Admonition type="tip" title="First‑time prompts">
+If asked to install the **NuGet** provider or trust **PSGallery**, answer `Y`.
+</Admonition>
 
 ---
 
-### Step 3 — Connect to SharePoint (`Connect-PnPOnline`)
-
-**What it does:** Opens an interactive sign‑in and creates a session.
-
-**Why it matters:** All provisioning actions run against this site.
+### Step 4: Connect to Your SharePoint Site
 
 ```powershell
-# TODO: set your site URL
-$SiteUrl = "https://contoso.sharepoint.com/sites/RecipeApp"
+# Clean any old session
 Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
+
+# TODO: replace placeholders
+$SiteUrl  = "https://contoso.sharepoint.com/sites/RecipeApp"
+$Tenant   = "contoso.onmicrosoft.com"
+$ClientId = "00000000-0000-0000-0000-000000000000"
+
+# Interactive login via your Entra app
 Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
 Get-PnPWeb | Format-List Title,Url
 ```
 
-**Common error:** “Access denied”.
-
-**Fix (one line):** Sign in with an account that has **Edit** or **Owner** permissions on the site.
+<Admonition type="note" title="Optional: Remember your Client ID">
+```powershell
+[Environment]::SetEnvironmentVariable('ENTRAID_CLIENT_ID','00000000-0000-0000-0000-000000000000',[EnvironmentVariableTarget]::User)
+# New shells can now do: Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -Interactive
+```
+</Admonition>
 
 ---
 
-### Step 4 — Provision Lists (create or update)
-
-**What it does:** Creates `Recipes` and `RecipeIngredients` if missing.
-
-**Why it matters:** Lists store your app’s data.
+### Step 5: Create Two Lists
 
 ```powershell
 New-PnPList -Title "Recipes" -Template GenericList -OnQuickLaunch -ErrorAction SilentlyContinue
@@ -215,36 +120,43 @@ New-PnPList -Title "RecipeIngredients" -Template GenericList -OnQuickLaunch -Err
 Get-PnPList -Identity "Recipes","RecipeIngredients" | Select Title,ItemCount | Format-Table
 ```
 
-**Common error:** List already exists.
-
-**Fix (one line):** This command is safe; it skips if the list exists.
+<Admonition type="note" title="Idempotent">
+`New-PnPList` safely skips creation if the list already exists.
+</Admonition>
 
 ---
 
-### Step 5 — Add Columns (exact internal names and types)$1
+### Step 6: Add Columns (Internal Names & Types)
 
-#### Field Type Syntax Cheatsheet (PnP.PowerShell)
+Use the snippets below. Replace **DisplayName** / **InternalName** / **ListTitle**.
 
-Use these idempotent patterns to add columns. Replace **DisplayName**/**InternalName**/**ListTitle** and other placeholders.
+#### Cheatsheet
 
-> **Tip:** To avoid duplicates, wrap each with an existence check (e.g., `Get-PnPField -List <List> -Identity <InternalName>`). Examples below use XML where needed for full control.
-
-**Single line of text**
+**Text**
 
 ```powershell
 Add-PnPField -List "<ListTitle>" -DisplayName "<DisplayName>" -InternalName "<InternalName>" -Type Text -AddToDefaultView
 ```
 
-**Multiple lines of text (Plain)**
+**Note (plain)**
 
 ```powershell
 Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Note' Name='<InternalName>' DisplayName='<DisplayName>' NumLines='10' RichText='FALSE' />"
 ```
 
-**Multiple lines of text (Rich text)**
+**Boolean**
 
 ```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Note' Name='<InternalName>' DisplayName='<DisplayName>' NumLines='10' RichText='TRUE' RichTextMode='Compatible' />"
+Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Boolean' Name='<InternalName>' DisplayName='<DisplayName>' Default='0' />"
+```
+
+**Choice (single)**
+
+```powershell
+$choices = @('Produce','Meat','Dairy','Pantry','Bakery','Frozen','Other')
+$xml = "<Field Type='Choice' Name='<InternalName>' DisplayName='<DisplayName>' Format='Dropdown'><CHOICES>" +
+       (($choices | % {"<CHOICE>$_</CHOICE>"}) -join '') + "</CHOICES></Field>"
+Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $xml
 ```
 
 **Number**
@@ -253,126 +165,35 @@ Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Note' Name='<Int
 Add-PnPField -List "<ListTitle>" -DisplayName "<DisplayName>" -InternalName "<InternalName>" -Type Number
 ```
 
-**Currency**
+<Admonition type="note" title="Internal names are immutable">
+Choose internal names carefully (no spaces). Display names can change later.
+</Admonition>
+
+#### Apply to This Project
 
 ```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Currency' Name='<InternalName>' DisplayName='<DisplayName>' Decimals='2' LCID='1033' />"
-```
+# Recipes
+Add-PnPField -List "Recipes" -DisplayName "Yield" -InternalName "Yield" -Type Text -ErrorAction SilentlyContinue
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Instructions' DisplayName='Instructions' NumLines='10' RichText='FALSE' />"
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Notes' DisplayName='Notes' NumLines='10' RichText='FALSE' />"
 
-**Yes/No (Boolean)**
-
-```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Boolean' Name='<InternalName>' DisplayName='<DisplayName>' Default='0' />"  # 0=No, 1=Yes
-```
-
-**Date and Time (Date only)**
-
-```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='DateTime' Name='<InternalName>' DisplayName='<DisplayName>' Format='DateOnly' FriendlyDisplayFormat='Disabled' />"
-```
-
-**Date and Time (Date & Time)**
-
-```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='DateTime' Name='<InternalName>' DisplayName='<DisplayName>' Format='DateTime' FriendlyDisplayFormat='Disabled' />"
-```
-
-**Choice (single-select)**
-
-```powershell
-$choices = @('Option A','Option B','Option C')
-$xml = "<Field Type='Choice' Name='<InternalName>' DisplayName='<DisplayName>' Format='Dropdown'><CHOICES>" + 
-       (($choices | ForEach-Object {"<CHOICE>$_</CHOICE>"}) -join '') + "</CHOICES></Field>"
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $xml
-```
-
-**Choice (multi-select)**
-
-```powershell
-$choices = @('Option A','Option B','Option C')
-$xml = "<Field Type='MultiChoice' Name='<InternalName>' DisplayName='<DisplayName>'><CHOICES>" + 
-       (($choices | ForEach-Object {"<CHOICE>$_</CHOICE>"}) -join '') + "</CHOICES></Field>"
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $xml
-```
-
-**Lookup (to another list)**
-
-```powershell
-# Target list must exist. Replace list GUID or title in the List attribute; ShowField is the target field to display
-$targetList = Get-PnPList -Identity "<TargetListTitle>"
-$lx = "<Field Type='Lookup' Name='<InternalName>' DisplayName='<DisplayName>' List='{$($targetList.Id)}' ShowField='Title' RelationshipDeleteBehavior='None' />"
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $lx
-```
-
-**Lookup (allow multiple)**
-
-```powershell
-$targetList = Get-PnPList -Identity "<TargetListTitle>"
-$lx = "<Field Type='LookupMulti' Mult='TRUE' Name='<InternalName>' DisplayName='<DisplayName>' List='{$($targetList.Id)}' ShowField='Title' />"
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $lx
-```
-
-**Person or Group**
-
-```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='User' Name='<InternalName>' DisplayName='<DisplayName>' UserSelectionMode='PeopleOnly' Mult='FALSE' />"
-# People and groups, multi-select:
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='UserMulti' Name='<InternalNameMulti>' DisplayName='<DisplayNameMulti>' UserSelectionMode='PeopleAndGroups' Mult='TRUE' />"
-```
-
-**Hyperlink or Picture**
-
-```powershell
-# Hyperlink (URL + Description)
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='URL' Name='<InternalName>' DisplayName='<DisplayName>' Format='Hyperlink' />"
-# Picture (renders image)
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='URL' Name='<ImgInternal>' DisplayName='<ImgDisplay>' Format='Image' />"
-```
-
-**Calculated**
-
-```powershell
-# Example: Concatenate two text fields
-$fx = "<Field Type='Calculated' ResultType='Text' Name='<InternalName>' DisplayName='<DisplayName>'><Formula>=Title&"" - ""&[QtyDisplay]</Formula><FieldRefs><FieldRef Name='Title'/><FieldRef Name='QtyDisplay'/></FieldRefs></Field>"
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml $fx
-```
-
-**Managed Metadata (Taxonomy)**
-
-```powershell
-# Requires an existing Term Set. Use the Group/TermSet IDs from your tenant.
-Add-PnPTaxonomyField -List "<ListTitle>" -DisplayName "<DisplayName>" -InternalName "<InternalName>" -TermSetPath "<GroupName>|<TermSetName>" -MultiValue:$false
-# Multi-value taxonomy
-Add-PnPTaxonomyField -List "<ListTitle>" -DisplayName "<DisplayNameMulti>" -InternalName "<InternalNameMulti>" -TermSetPath "<GroupName>|<TermSetName>" -MultiValue:$true
-```
-
-**Location** (modern column)
-
-```powershell
-Add-PnPFieldFromXml -List "<ListTitle>" -FieldXml "<Field Type='Location' Name='<InternalName>' DisplayName='<DisplayName>' />"
-```
-
-**JSON: mark column required / default value**
-
-```powershell
-# Required
-Set-PnPField -List "<ListTitle>" -Identity "<InternalName>" -Values @{ Required = $true }
-# Default value (Text example)
-Set-PnPField -List "<ListTitle>" -Identity "<InternalName>" -Values @{ DefaultValue = 'Default text' }
+# RecipeIngredients
+Add-PnPField -List "RecipeIngredients" -DisplayName "Ingredient Name" -InternalName "IngredientName" -Type Text -ErrorAction SilentlyContinue
+Add-PnPField -List "RecipeIngredients" -DisplayName "Qty Display" -InternalName "QtyDisplay" -Type Text -ErrorAction SilentlyContinue
+$choices = @('Produce','Meat','Dairy','Pantry','Bakery','Frozen','Other')
+$xml = "<Field Type='Choice' Name='StoreSection' DisplayName='Store Section' Format='Dropdown'><CHOICES>" + (($choices | % {"<CHOICE>$_</CHOICE>"}) -join '') + "</CHOICES></Field>"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml $xml
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='HaveAtHome' DisplayName='Have At Home' Default='0' />"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='Purchased' DisplayName='Purchased' Default='0' />"
+Add-PnPField -List "RecipeIngredients" -DisplayName "RecipeId" -InternalName "RecipeId" -Type Number -ErrorAction SilentlyContinue
 ```
 
 ---
 
-### Step 6 — Create Views (filters/sorts)
-
-**What it does:** Defines helpful list views for shopping.
-
-**Why it matters:** Users can quickly filter what to buy vs. what they have.
+### Step 7: Create Three Views (CAML)
 
 ```powershell
-foreach ($v in @("All Ingredients","Need to Buy","Have at Home")) {
-  try { Remove-PnPView -List "RecipeIngredients" -Identity $v -ErrorAction SilentlyContinue } catch {}
-}
+foreach ($v in @("All Ingredients","Need to Buy","Have at Home")) { try { Remove-PnPView -List "RecipeIngredients" -Identity $v -ErrorAction SilentlyContinue } catch {} }
 
 $fields = @("LinkTitle","QtyDisplay","StoreSection","HaveAtHome","Purchased","RecipeId")
 
@@ -386,278 +207,119 @@ Add-PnPView -List "RecipeIngredients" -Title "Have at Home" -Fields $fields | Ou
 Set-PnPView -List "RecipeIngredients" -Identity "Have at Home" -Values @{ Query = "<Query><Where><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>1</Value></Eq></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" } | Out-Null
 ```
 
-**Common error:** `Set-PnPView` CAML typo.
-
-**Fix (one line):** Copy CAML exactly from this guide; small typos break CAML.
+<Admonition type="danger" title="CAML is picky">
+Copy the CAML exactly. A missing tag will break the view.
+</Admonition>
 
 ---
 
-### Step 7 — Re‑run Safety (idempotence checks)
-
-**What it does:** Uses existence checks and `-ErrorAction SilentlyContinue` to avoid duplicates.
-
-**Why it matters:** Beginners can safely re‑run scripts without cleanup.
+### Step 8: Verify Your Work
 
 ```powershell
-# Re-running the Quick Start is safe. No duplicate lists/fields/views are created.
 Get-PnPList -Identity "Recipes","RecipeIngredients" | Select Title,ItemCount | Format-Table
-```
-
----
-
-### Step 8 — Verify in SharePoint
-
-**What it does:** Confirms lists, fields, and views exist.
-
-**Why it matters:** Validates deployment before you bind a Power App.
-
-```powershell
 Get-PnPListItem -List "Recipes" -PageSize 50 | Select Id,Title | Format-Table
 Get-PnPListItem -List "RecipeIngredients" -PageSize 50 | Select Id,Title,QtyDisplay,StoreSection,HaveAtHome,Purchased,RecipeId | Format-Table
 ```
 
+<Admonition type="tip" title="Next: Bind in Power Apps">
+Add both lists as data sources. Gallery Items for a recipe: `Filter(RecipeIngredients, RecipeId = varRecipeId)`. Use toggles to update `Purchased` and `HaveAtHome`.
+</Admonition>
+
 ---
 
-## Power App Binding Notes
+## Fields Reference
 
-* **Data sources**: Add `Recipes` and `RecipeIngredients` lists.
-* **Gallery (Ingredients)**: Items → `Filter(RecipeIngredients, RecipeId = varRecipeId)`.
-* **“Need to Buy” view**: replicate filter with `HaveAtHome = false && Purchased = false`.
-* **Title** shows `IngredientName`; **Subtitle** shows `QtyDisplay`.
-* **Toggle** controls `Purchased`; **CheckBox** controls `HaveAtHome`.
+| **List**          | **Display Name** | **Internal Name** | **Type** | **Req** | **Notes**                                     |
+| ----------------- | ---------------- | ----------------- | -------- | ------- | --------------------------------------------- |
+| Recipes           | Title            | Title             | Text     | Y       | Built‑in                                      |
+| Recipes           | Yield            | Yield             | Text     | N       | e.g., "4 servings"                            |
+| Recipes           | Instructions     | Instructions      | Note     | N       | Plain text, 10 lines                          |
+| Recipes           | Notes            | Notes             | Note     | N       | Plain text, 10 lines                          |
+| RecipeIngredients | Title            | Title             | Text     | Y       | Display label                                 |
+| RecipeIngredients | Ingredient Name  | IngredientName    | Text     | N       | Ingredient friendly name                      |
+| RecipeIngredients | Qty Display      | QtyDisplay        | Text     | N       | e.g., "12 oz / 340 g"                         |
+| RecipeIngredients | Store Section    | StoreSection      | Choice   | N       | Produce/Meat/Dairy/Pantry/Bakery/Frozen/Other |
+| RecipeIngredients | Have At Home     | HaveAtHome        | Boolean  | N       | Default No                                    |
+| RecipeIngredients | Purchased        | Purchased         | Boolean  | N       | Default No                                    |
+| RecipeIngredients | RecipeId         | RecipeId          | Number   | N       | Numeric link to parent recipe                 |
+
+---
+
+## Views Reference
+
+| **List**          | **View Name**   | **Default** | **Filters**                            | **Sorts**                        | **Shown Columns**                                                    |
+| ----------------- | --------------- | ----------- | -------------------------------------- | -------------------------------- | -------------------------------------------------------------------- |
+| RecipeIngredients | All Ingredients | Yes         | *(none)*                               | StoreSection ↑, IngredientName ↑ | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
+| RecipeIngredients | Need to Buy     | No          | HaveAtHome = No **AND** Purchased = No | StoreSection ↑, IngredientName ↑ | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
+| RecipeIngredients | Have at Home    | No          | HaveAtHome = Yes                       | StoreSection ↑, IngredientName ↑ | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
+
+---
+
+## Quick Copy/Paste Script
+
+Paste into **pwsh**, edit the TODOs, run end‑to‑end.
+
+```powershell
+# QuickStart — end‑to‑end provisioning (interactive auth)
+Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
+
+# TODO: replace placeholders
+$SiteUrl  = "https://contoso.sharepoint.com/sites/RecipeApp"
+$Tenant   = "contoso.onmicrosoft.com"
+$ClientId = "00000000-0000-0000-0000-000000000000"
+
+if (-not (Get-Module -ListAvailable -Name PnP.PowerShell)) { Install-Module PnP.PowerShell -Scope CurrentUser -Force }
+Import-Module PnP.PowerShell -Force
+Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
+
+# Lists
+foreach ($l in @("Recipes","RecipeIngredients")) {
+  if (-not (Get-PnPList -Identity $l -ErrorAction SilentlyContinue)) {
+    New-PnPList -Title $l -Template GenericList -OnQuickLaunch | Out-Null
+  }
+}
+
+# Fields (Recipes)
+Add-PnPField -List "Recipes" -DisplayName "Yield" -InternalName "Yield" -Type Text -ErrorAction SilentlyContinue
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Instructions' DisplayName='Instructions' NumLines='10' RichText='FALSE' />"
+Add-PnPFieldFromXml -List "Recipes" -FieldXml "<Field Type='Note' Name='Notes' DisplayName='Notes' NumLines='10' RichText='FALSE' />"
+
+# Fields (RecipeIngredients)
+Add-PnPField -List "RecipeIngredients" -DisplayName "Ingredient Name" -InternalName "IngredientName" -Type Text -ErrorAction SilentlyContinue
+Add-PnPField -List "RecipeIngredients" -DisplayName "Qty Display" -InternalName "QtyDisplay" -Type Text -ErrorAction SilentlyContinue
+$choices = @('Produce','Meat','Dairy','Pantry','Bakery','Frozen','Other')
+$xml = "<Field Type='Choice' Name='StoreSection' DisplayName='Store Section' Format='Dropdown'><CHOICES>" + (($choices | % {"<CHOICE>$_</CHOICE>"}) -join '') + "</CHOICES></Field>"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml $xml
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='HaveAtHome' DisplayName='Have At Home' Default='0' />"
+Add-PnPFieldFromXml -List "RecipeIngredients" -FieldXml "<Field Type='Boolean' Name='Purchased' DisplayName='Purchased' Default='0' />"
+Add-PnPField -List "RecipeIngredients" -DisplayName "RecipeId" -InternalName "RecipeId" -Type Number -ErrorAction SilentlyContinue
+
+# Views
+foreach ($v in @("All Ingredients","Need to Buy","Have at Home")) { try { Remove-PnPView -List "RecipeIngredients" -Identity $v -ErrorAction SilentlyContinue } catch {} }
+$fields = @("LinkTitle","QtyDisplay","StoreSection","HaveAtHome","Purchased","RecipeId")
+Add-PnPView -List "RecipeIngredients" -Title "All Ingredients" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "All Ingredients" -Values @{ Query = "<Query><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"; DefaultView=$true } | Out-Null
+Add-PnPView -List "RecipeIngredients" -Title "Need to Buy" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "Need to Buy" -Values @{ Query = "<Query><Where><And><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>0</Value></Eq><Eq><FieldRef Name='Purchased' /><Value Type='Boolean'>0</Value></Eq></And></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" } | Out-Null
+Add-PnPView -List "RecipeIngredients" -Title "Have at Home" -Fields $fields | Out-Null
+Set-PnPView -List "RecipeIngredients" -Identity "Have at Home" -Values @{ Query = "<Query><Where><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>1</Value></Eq></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" } | Out-Null
+
+Write-Host "Backend provisioned. Verify lists and views in your site." -ForegroundColor Green
+```
 
 ---
 
 ## Troubleshooting
 
-* **Access denied** → Use a site account with **Edit/Owner** role.
-* **Install-Module not found** → You’re not in PowerShell 7; open `pwsh`.
-* **Proxy/TLS issues** → Configure proxy or enforce TLS 1.2 before install.
-* **CAML query errors** → Copy the CAML exactly; missing tags will fail.
+* **Please specify a valid client id** → Add `-ClientId <your-guid>` and verify the value from **App registrations**.
+* **Access denied** → Use an account with **Edit/Owner** on the target site.
+* **Install-Module not recognized** → You’re in Windows PowerShell; open **pwsh** (PowerShell 7).
+* **CAML errors** → Copy CAML exactly; a single missing tag will fail the view.
 
 ---
 
-## Next Steps
+## Why Use This?
 
-* Convert `RecipeId` number to a real **Lookup** field pointing to `Recipes`.
-* Add permissions and **item‑level** security if needed.
-* Build a Power App UI (Gallery + Forms) using these lists.
-* Add export/import scripts for backup.
-
----
-
-## Fields Table
-
-| List              | Display Name    | Internal Name  | Type    | Required (Y/N) | Notes                                                |
-| ----------------- | --------------- | -------------- | ------- | -------------- | ---------------------------------------------------- |
-| Recipes           | Title           | Title          | Text    | Y              | Built‑in Title field                                 |
-| Recipes           | Yield           | Yield          | Text    | N              | e.g., "4 servings"                                   |
-| Recipes           | Instructions    | Instructions   | Note    | N              | Plain text, 10 lines                                 |
-| Recipes           | Notes           | Notes          | Note    | N              | Plain text, 10 lines                                 |
-| RecipeIngredients | Title           | Title          | Text    | Y              | Use as display name; duplicate of Ingredient Name OK |
-| RecipeIngredients | Ingredient Name | IngredientName | Text    | N              | Friendly name for ingredient                         |
-| RecipeIngredients | Qty Display     | QtyDisplay     | Text    | N              | e.g., "12 oz / 340 g"                                |
-| RecipeIngredients | Store Section   | StoreSection   | Choice  | N              | Produce/Meat/Dairy/Pantry/Bakery/Frozen/Other        |
-| RecipeIngredients | Have At Home    | HaveAtHome     | Boolean | N              | `No` default                                         |
-| RecipeIngredients | Purchased       | Purchased      | Boolean | N              | `No` default                                         |
-| RecipeIngredients | RecipeId        | RecipeId       | Number  | N              | Numeric link to parent recipe                        |
-
----
-
-## Views Table
-
-| List              | View Name       | Default (Y/N) | Filters (KQL/logic)                    | Sorts                                | Shown Columns                                                        |
-| ----------------- | --------------- | ------------- | -------------------------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| RecipeIngredients | All Ingredients | Y             | *(none)*                               | StoreSection ASC, IngredientName ASC | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
-| RecipeIngredients | Need to Buy     | N             | HaveAtHome = No **AND** Purchased = No | StoreSection ASC, IngredientName ASC | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
-| RecipeIngredients | Have at Home    | N             | HaveAtHome = Yes                       | StoreSection ASC, IngredientName ASC | LinkTitle, QtyDisplay, StoreSection, HaveAtHome, Purchased, RecipeId |
-
----
-
-## QuickStart.ps1 (standalone)
-
-```powershell
-# QuickStart.ps1 — minimal, single-file deployment for beginners
-# Usage: Open PowerShell 7 (pwsh), paste this file’s contents, edit $SiteUrl, and run.
-
-# TODO: set your site URL
-$SiteUrl = "https://contoso.sharepoint.com/sites/RecipeApp"
-
-# Ensure PnP module
-if (-not (Get-Module -ListAvailable -Name PnP.PowerShell)) {
-  Install-Module PnP.PowerShell -Scope CurrentUser -Force
-}
-Import-Module PnP.PowerShell -Force
-
-# Connect
-Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
-Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
-
-# Lists
-function Ensure-List { param([string]$ListTitle)
-  $list = Get-PnPList -Identity $ListTitle -ErrorAction SilentlyContinue
-  if (-not $list) { New-PnPList -Title $ListTitle -Template GenericList -OnQuickLaunch | Out-Null }
-}
-Ensure-List -ListTitle "Recipes"
-Ensure-List -ListTitle "RecipeIngredients"
-
-# Fields helpers
-function Ensure-TextField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Add-PnPField -List $List -DisplayName $Display -InternalName $Internal -Type Text | Out-Null
-  }
-}
-function Ensure-NoteField { param($List,$Display,$Internal,$Lines=10)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    $xml = "<Field Type='Note' Name='$Internal' DisplayName='$Display' NumLines='$Lines' RichText='FALSE' />"
-    Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-BoolField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    $xml = "<Field Type='Boolean' Name='$Internal' DisplayName='$Display' Default='0' />"
-    Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-ChoiceField { param($List,$Display,$Internal,$Choices)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    $choicesXml = ($Choices | ForEach-Object {"<CHOICE>$_</CHOICE>"}) -join ''
-    $xml = "<Field Type='Choice' Name='$Internal' DisplayName='$Display' Format='Dropdown'><CHOICES>$choicesXml</CHOICES></Field>"
-    Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-NumberField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Add-PnPField -List $List -DisplayName $Display -InternalName $Internal -Type Number | Out-Null
-  }
-}
-
-# Recipes fields
-Ensure-TextField  -List "Recipes" -Display "Yield"         -Internal "Yield"
-Ensure-NoteField  -List "Recipes" -Display "Instructions"  -Internal "Instructions"
-Ensure-NoteField  -List "Recipes" -Display "Notes"         -Internal "Notes"
-
-# RecipeIngredients fields
-Ensure-TextField  -List "RecipeIngredients" -Display "Ingredient Name" -Internal "IngredientName"
-Ensure-TextField  -List "RecipeIngredients" -Display "Qty Display"     -Internal "QtyDisplay"
-Ensure-ChoiceField -List "RecipeIngredients" -Display "Store Section"   -Internal "StoreSection" -Choices @("Produce","Meat","Dairy","Pantry","Bakery","Frozen","Other")
-Ensure-BoolField  -List "RecipeIngredients" -Display "Have At Home"    -Internal "HaveAtHome"
-Ensure-BoolField  -List "RecipeIngredients" -Display "Purchased"       -Internal "Purchased"
-Ensure-NumberField -List "RecipeIngredients" -Display "RecipeId"       -Internal "RecipeId"
-
-# Views
-foreach ($v in @("All Ingredients","Need to Buy","Have at Home")) {
-  try { Remove-PnPView -List "RecipeIngredients" -Identity $v -ErrorAction SilentlyContinue } catch {}
-}
-$fields = @("LinkTitle","QtyDisplay","StoreSection","HaveAtHome","Purchased","RecipeId")
-Add-PnPView -List "RecipeIngredients" -Title "All Ingredients" -Fields $fields | Out-Null
-Set-PnPView -List "RecipeIngredients" -Identity "All Ingredients" -Values @{ Query = "<Query><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"; DefaultView=$true } | Out-Null
-Add-PnPView -List "RecipeIngredients" -Title "Need to Buy" -Fields $fields | Out-Null
-Set-PnPView -List "RecipeIngredients" -Identity "Need to Buy" -Values @{ Query = "<Query><Where><And><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>0</Value></Eq><Eq><FieldRef Name='Purchased' /><Value Type='Boolean'>0</Value></Eq></And></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" } | Out-Null
-Add-PnPView -List "RecipeIngredients" -Title "Have at Home" -Fields $fields | Out-Null
-Set-PnPView -List "RecipeIngredients" -Identity "Have at Home" -Values @{ Query = "<Query><Where><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>1</Value></Eq></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" } | Out-Null
-
-Write-Host "QuickStart complete." -ForegroundColor Green
-```
-
----
-
-## Provision-SharePointBackend.ps1 (structured)
-
-```powershell
-<#
-Provision-SharePointBackend.ps1 — structured, idempotent provisioning with helpers
-Purpose: Showcase production-quality scripting style for your portfolio
-#>
-
-param(
-  [Parameter(Mandatory=$false)][string]$SiteUrl = "https://contoso.sharepoint.com/sites/RecipeApp"
-)
-
-Write-Host "Provisioning to: $SiteUrl" -ForegroundColor Cyan
-
-# 1) Ensure module and connect
-if (-not (Get-Module -ListAvailable -Name PnP.PowerShell)) {
-  Install-Module PnP.PowerShell -Scope CurrentUser -Force
-}
-Import-Module PnP.PowerShell -Force
-Disconnect-PnPOnline -ClearPersistedLogin -ErrorAction SilentlyContinue
-Connect-PnPOnline -Url $SiteUrl -Tenant $Tenant -ClientId $ClientId -Interactive
-
-# 2) Helpers
-function Ensure-List {
-  param([string]$ListTitle)
-  $list = Get-PnPList -Identity $ListTitle -ErrorAction SilentlyContinue
-  if (-not $list) {
-    Write-Host "[List] Create '$ListTitle'"; New-PnPList -Title $ListTitle -Template GenericList -OnQuickLaunch | Out-Null
-  } else { Write-Host "[List] Exists '$ListTitle'" }
-}
-function Ensure-TextField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Write-Host "[Field] $List.$Internal (Text)"; Add-PnPField -List $List -DisplayName $Display -InternalName $Internal -Type Text | Out-Null
-  }
-}
-function Ensure-NoteField { param($List,$Display,$Internal,$Lines=10)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Write-Host "[Field] $List.$Internal (Note)"; $xml = "<Field Type='Note' Name='$Internal' DisplayName='$Display' NumLines='$Lines' RichText='FALSE' />"; Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-BoolField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Write-Host "[Field] $List.$Internal (Boolean)"; $xml = "<Field Type='Boolean' Name='$Internal' DisplayName='$Display' Default='0' />"; Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-ChoiceField { param($List,$Display,$Internal,$Choices)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    $choicesXml = ($Choices | ForEach-Object {"<CHOICE>$_</CHOICE>"}) -join ''
-    Write-Host "[Field] $List.$Internal (Choice)"; $xml = "<Field Type='Choice' Name='$Internal' DisplayName='$Display' Format='Dropdown'><CHOICES>$choicesXml</CHOICES></Field>"; Add-PnPFieldFromXml -List $List -FieldXml $xml | Out-Null
-  }
-}
-function Ensure-NumberField { param($List,$Display,$Internal)
-  if (-not (Get-PnPField -List $List -Identity $Internal -ErrorAction SilentlyContinue)) {
-    Write-Host "[Field] $List.$Internal (Number)"; Add-PnPField -List $List -DisplayName $Display -InternalName $Internal -Type Number | Out-Null
-  }
-}
-function Ensure-View {
-  param(
-    [string]$List,
-    [string]$Title,
-    [string[]]$Fields,
-    [string]$CamlQuery,
-    [bool]$Default=$false
-  )
-  try { Remove-PnPView -List $List -Identity $Title -ErrorAction SilentlyContinue } catch {}
-  Add-PnPView -List $List -Title $Title -Fields $Fields | Out-Null
-  $vals = @{ Query = $CamlQuery }
-  if ($Default) { $vals["DefaultView"] = $true }
-  Set-PnPView -List $List -Identity $Title -Values $vals | Out-Null
-  Write-Host "[View] $List — $Title"
-}
-
-# 3) Schema
-Ensure-List "Recipes"
-Ensure-List "RecipeIngredients"
-
-# Recipes fields
-Ensure-TextField  -List "Recipes" -Display "Yield"         -Internal "Yield"
-Ensure-NoteField  -List "Recipes" -Display "Instructions"  -Internal "Instructions"
-Ensure-NoteField  -List "Recipes" -Display "Notes"         -Internal "Notes"
-
-# RecipeIngredients fields
-Ensure-TextField   -List "RecipeIngredients" -Display "Ingredient Name" -Internal "IngredientName"
-Ensure-TextField   -List "RecipeIngredients" -Display "Qty Display"     -Internal "QtyDisplay"
-Ensure-ChoiceField -List "RecipeIngredients" -Display "Store Section"   -Internal "StoreSection" -Choices @("Produce","Meat","Dairy","Pantry","Bakery","Frozen","Other")
-Ensure-BoolField   -List "RecipeIngredients" -Display "Have At Home"    -Internal "HaveAtHome"
-Ensure-BoolField   -List "RecipeIngredients" -Display "Purchased"       -Internal "Purchased"
-Ensure-NumberField -List "RecipeIngredients" -Display "RecipeId"        -Internal "RecipeId"
-
-# 4) Views
-$fields = @("LinkTitle","QtyDisplay","StoreSection","HaveAtHome","Purchased","RecipeId")
-Ensure-View -List "RecipeIngredients" -Title "All Ingredients" -Fields $fields -CamlQuery "<Query><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>" -Default $true
-Ensure-View -List "RecipeIngredients" -Title "Need to Buy" -Fields $fields -CamlQuery "<Query><Where><And><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>0</Value></Eq><Eq><FieldRef Name='Purchased' /><Value Type='Boolean'>0</Value></Eq></And></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"
-Ensure-View -List "RecipeIngredients" -Title "Have at Home" -Fields $fields -CamlQuery "<Query><Where><Eq><FieldRef Name='HaveAtHome' /><Value Type='Boolean'>1</Value></Eq></Where><OrderBy><FieldRef Name='StoreSection' /><FieldRef Name='IngredientName' /></OrderBy></Query>"
-
-# 5) Summary
-Get-PnPList -Identity "Recipes","RecipeIngredients" | Select Title,ItemCount | Format-Table
-Write-Host "Provisioning complete." -ForegroundColor Green
-```
+* Clean, repeatable backend you can reuse per app
+* Clear, beginner‑friendly docs that reflect professional tech writing
+* Easy portfolio piece that demonstrates **PowerShell + SharePoint** automation
