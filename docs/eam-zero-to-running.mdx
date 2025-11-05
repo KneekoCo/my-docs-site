@@ -27,7 +27,7 @@ node -v
 pnpm -v
 ```
 
-roject Layout (Monorepo)
+## 1. Project Layout (Monorepo)
 
 ```text
 EAM/
@@ -35,7 +35,7 @@ EAM/
 │  └─ api/          # NestJS + Prisma (SQLite)
 ├─ eam-ui/          # Vite + React + TypeScript UI
 └─ tsconfig.base.json
-
+```
 
 
 Create tsconfig.base.json at the repo root:
@@ -73,14 +73,14 @@ pnpm add -D prisma ts-node tsconfig-paths typescript @types/bcrypt
 ### 2.2 Prisma init and schema
 ```bash
 pnpm exec prisma init --datasource-provider sqlite
-```
+
 
 Create .env:
 
 
 DATABASE_URL="file:./dev.db"
 PORT=3001
-
+```
 
 Replace prisma/schema.prisma with:
 
@@ -176,9 +176,9 @@ pnpm exec prisma generate
 pnpm exec prisma migrate dev --name init
 ```
 <Admonition type="info" title="If you see P3019 (provider mismatch)"> Delete <code>apps/api/prisma/migrations</code> and <code>apps/api/prisma/migration_lock.toml</code>, then rerun <code>migrate dev</code>. </Admonition>
-2.3 TypeScript config and bootstrap
+### 2.3 TypeScript config and bootstrap
 
-apps/api/tsconfig.json:
+`apps/api/tsconfig.json:`
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -192,7 +192,7 @@ apps/api/tsconfig.json:
 }
 ```
 
-apps/api/src/main.ts:
+`apps/api/src/main.ts:`
 ```ts
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
@@ -205,7 +205,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-Add scripts to apps/api/package.json:
+Add scripts to `apps/api/package.json:`
 ```json
 {
   "scripts": {
@@ -230,7 +230,7 @@ Quick test:
 Invoke-RestMethod "http://localhost:3001/assets" -Headers @{Accept="application/json"}
 # Expect: []
 ```
-3. Prisma Studio
+## 3. Prisma Studio
 ```bash
 # from apps/api
 pnpm run studio
@@ -243,8 +243,8 @@ Top grid: records.
 
 Add record to insert; Save writes to SQLite.
 
-4. Frontend — Vite + React + TypeScript
-4.1 Create the UI
+## 4. Frontend — Vite + React + TypeScript
+### 4.1 Create the UI
 ```bash
 # from EAM/
 pnpm dlx create-vite@latest eam-ui --template react-ts
@@ -257,7 +257,7 @@ Create .env:
 ```text
 VITE_API_URL=http://localhost:3001
 ```
-4.2 App shell
+### 4.2 App shell
 
 eam-ui/index.html (ensure it loads /src/main.tsx):
 
@@ -312,28 +312,24 @@ You should see:
 EAM UI
 UI is talking to API at http://localhost:3001
 
-5. Troubleshooting (What We Fixed)
-Symptom	Cause	Fix
-Cannot find module '.../dist/app.module'	API not built; dist missing	pnpm run build or pnpm run start:dev
-Decorator errors (@Get, @Post)	JS artifacts in src/ or missing TS decorator flags	Delete stray *.js/*.map/*.bak in src/; ensure experimentalDecorators + emitDecoratorMetadata are true
-app.enableCors error	Called before app existed	Create app, then call app.enableCors()
-Prisma P3019 provider mismatch	Old migrations for a different provider	Delete prisma/migrations and migration_lock.toml, rerun migrate dev
-Zod / Node default-import errors	esModuleInterop off	Ensure "esModuleInterop": true in tsconfig
-Blank Vite page + chrome-extension:// errors	Browser extension failed a dynamic import	Use Incognito or disable the extension
-Parsing error: Cannot read file 'tsconfig.json'	ESLint pointing to wrong project root	Ensure a tsconfig.json exists per app and ESLint references it
+## 5. Troubleshooting (What We Fixed)
+| **Symptom**                              | **Cause**                   | **Fix**                                                        |
+| ---------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
+| Cannot find module `'.../dist/app.module'` | API not built               | `pnpm run build` or `pnpm run start:dev`                       |
+| Decorator errors `(@Get, @Post)`         | Missing TS decorator flags   | Set `experimentalDecorators` and `emitDecoratorMetadata` to `true` |
+| `app.enableCors` error                   | Called before app exists     | Call after `create(AppModule)`                                 |
+| Prisma P3019                             | Old migrations               | Delete `migrations/` and `migration_lock.toml`, then rerun `migrate` |
+| Zod import errors                        | `esModuleInterop` off        | Set to `true`                                                  |
+| Blank Vite page                          | Browser extension            | Disable extension or use incognito mode                        |
+| ESLint `tsconfig` error                  | Wrong root                   | Ensure a `tsconfig.json` exists per app                        |
 
-Clean leaked build artifacts (API):
 
-# from apps/api
 
+## 6. Fresh-Machine Quickstart (Copy/Paste)
 ```
-Get-ChildItem .\src -Recurse -Include *.js,*.js.map,*.bak | Remove-Item -Force
-if (Test-Path .\dist) { Remove-Item .\dist -Recurse -Force }
-```
-6. Fresh-Machine Quickstart (Copy/Paste)
 # ----- Root -----
 mkdir EAM; cd EAM
-```
+
 # tsconfig base
 @'
 {
@@ -348,7 +344,7 @@ mkdir EAM; cd EAM
   }
 }
 '@ | Out-File -Encoding utf8 .\tsconfig.base.json
-```
+
 # ----- Backend -----
 pnpm dlx @nestjs/cli new apps/api --package-manager pnpm
 cd .\apps\api
@@ -367,7 +363,6 @@ pnpm approve-builds
 pnpm exec prisma generate
 pnpm exec prisma migrate dev --name init
 
-```
 # tsconfig.json
 @'
 {
@@ -401,19 +396,19 @@ VITE_API_URL=http://localhost:3001
 # index.html / main.tsx / App.tsx (paste from above)
 pnpm run dev
 ```
-7. Next Steps
+## 7. Next Steps
 
-Secure the API (JWT) and restrict CORS to your UI origin.
+1. Secure the API (JWT) and restrict CORS to your UI origin.
 
-Implement full CRUD (PUT/DELETE) routes + UI forms with validation (class-validator on API, zod in UI).
+2. Implement full CRUD (PUT/DELETE) routes + UI forms with validation (class-validator on API, zod in UI).
 
-File uploads for Document records (Nest multipart route + local/S3 storage).
+3. File uploads for Document records (Nest multipart route + local/S3 storage).
 
-Tests for schedule recompute and inspection close-out.
+4. Tests for schedule recompute and inspection close-out.
 
-Dockerize the API (mount SQLite volume) for easy deployment.
+5. Dockerize the API (mount SQLite volume) for easy deployment.
 
-8. Quick Glossary
+## 8. Quick Glossary
 
 NestJS — Node framework using decorators (@Controller, @Get, etc.)
 
@@ -427,10 +422,4 @@ pnpm — Package manager; pnpm approve-builds allows native postinstalls
 
 CORS — Cross-origin rules to allow UI → API requests
 
-
----
-
-### Why this fixes your error
-- In MDX, **any `{...}` outside a code fence** is parsed as an expression. Your first un-fenced JSON block (the `tsconfig.base.json`) starts with `{`, which acorn tried to parse → compilation error at line 42.  
-- Fencing all code/JSON/trees/commands prevents MDX from treating them as JSX/expressions.
 
