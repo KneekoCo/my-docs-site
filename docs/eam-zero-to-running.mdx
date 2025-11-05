@@ -256,6 +256,7 @@ VITE_API_URL=http://localhost:3001
 
 eam-ui/index.html (ensure it loads /src/main.tsx):
 
+```
 <!doctype html>
 <html>
   <head>
@@ -271,7 +272,7 @@ eam-ui/index.html (ensure it loads /src/main.tsx):
 
 
 eam-ui/src/main.tsx:
-
+```
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
@@ -284,7 +285,7 @@ createRoot(document.getElementById("root")!).render(
 
 
 eam-ui/src/App.tsx:
-
+```
 export default function App() {
   return (
     <div style={{ padding: 24 }}>
@@ -296,7 +297,7 @@ export default function App() {
 
 
 Run:
-
+```bash
 pnpm run dev
 # open the printed URL (usually http://localhost:5173)
 
@@ -425,4 +426,3 @@ CORS — Cross-origin rules to allow UI → API requests
 - In MDX, **any `{...}` outside a code fence** is parsed as an expression. Your first un-fenced JSON block (the `tsconfig.base.json`) starts with `{`, which acorn tried to parse → compilation error at line 42.  
 - Fencing all code/JSON/trees/commands prevents MDX from treating them as JSX/expressions.
 
-If you want me to patch just your original file instead of replacing it wholesale, paste the exact file a
