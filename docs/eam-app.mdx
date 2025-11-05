@@ -1,0 +1,411 @@
+---
+id: eam-zero-to-running
+title: EAM App — From Zero to Running
+---
+
+import Admonition from '@theme/Admonition';
+
+---
+
+# EAM App — From Zero to Running
+
+A clean, beginner-friendly write-up of everything we did so you (or future-you) can rebuild this stack from scratch:
+
+- Backend: NestJS API + Prisma + SQLite
+
+- Frontend: Vite + React + TypeScript
+
+Tooling: pnpm, Prisma Studio, minimal TS/ESLint config
+
+0. Prerequisites
+
+Node.js 18+ (OK with Node 24)
+
+pnpm 8+
+
+PowerShell (Windows; commands here use PS)
+
+node -v
+pnpm -v
+
+1. Project Layout (Monorepo)
+EAM/
+├─ apps/
+│  └─ api/          # NestJS + Prisma (SQLite)
+├─ eam-ui/          # Vite + React + TypeScript UI
+└─ tsconfig.base.json
+
+
+Create tsconfig.base.json at the repo root:
+
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+
+2. Backend — NestJS + Prisma (SQLite)
+2.1 Create the Nest app
+# from EAM/
+pnpm dlx @nestjs/cli new apps/api --package-manager pnpm
+
+
+Add dependencies:
+
+cd .\apps\api
+pnpm add @prisma/client zod @nestjs/config @nestjs/passport @nestjs/jwt bcrypt class-validator class-transformer
+pnpm add -D prisma ts-node tsconfig-paths typescript @types/bcrypt
+
+<Admonition type="tip" title="If pnpm blocks native postinstalls"> Run `pnpm approve-builds` later and allow: **prisma, @prisma/engines, @prisma/client, bcrypt** (and often **@swc/core, esbuild**). </Admonition>
+2.2 Prisma init and schema
+pnpm exec prisma init --datasource-provider sqlite
+
+
+Create .env:
+
+DATABASE_URL="file:./dev.db"
+PORT=3001
+
+
+Replace prisma/schema.prisma with:
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Asset {
+  id            String   @id @default(cuid())
+  fleetId       String   @unique
+  make          String?
+  model         String?
+  hasMicroMon   Boolean  @default(false)
+  status        String
+  outOfUseStart DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  inspections     Inspection[]
+  schedules       Schedule[]
+  documents       Document[]
+  outOfUseCredits OutOfUseCredit[]
+}
+
+model Schedule {
+  id           String   @id @default(cuid())
+  assetId      String
+  type         String   // DAILY_22921 | PERIODIC_22923 | ...
+  intervalDays Int
+  requiresQMI  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  asset        Asset    @relation(fields: [assetId], references: [id])
+
+  @@index([assetId, type])
+}
+
+model Inspection {
+  id            String   @id @default(cuid())
+  assetId       String
+  scheduleType  String
+  performedAt   DateTime
+  dueBy         DateTime
+  performerId   String
+  performerRole String   // QMI | Maintainer | Supervisor
+  result        String   // Pass | Defects | OutOfUseCredit
+  form49aPath   String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  asset         Asset    @relation(fields: [assetId], references: [id])
+}
+
+model OutOfUseCredit {
+  id           String   @id @default(cuid())
+  assetId      String
+  startDate    DateTime
+  endDate      DateTime?
+  daysCredited Int      @default(0)
+  attestedBy   String
+  createdAt    DateTime @default(now())
+  asset        Asset    @relation(fields: [assetId], references: [id])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  assetId   String
+  path      String
+  kind      String   // 49A | WorkOrder | Evidence
+  createdAt DateTime @default(now())
+  asset     Asset    @relation(fields: [assetId], references: [id])
+}
+
+model Audit {
+  id       String   @id @default(cuid())
+  actorId  String
+  action   String
+  entity   String
+  entityId String
+  at       DateTime @default(now())
+  details  Json
+}
+
+
+Generate client and create DB/migrations:
+
+pnpm exec prisma generate
+pnpm exec prisma migrate dev --name init
+
+<Admonition type="info" title="If you see P3019 (provider mismatch)"> Delete `apps/api/prisma/migrations` and `apps/api/prisma/migration_lock.toml`, then rerun `migrate dev`. </Admonition>
+2.3 TypeScript config and bootstrap
+
+apps/api/tsconfig.json:
+
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*"]
+}
+
+
+apps/api/src/main.ts:
+
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: true, credentials: true });
+  await app.listen(process.env.PORT ?? 3001);
+}
+bootstrap();
+
+
+Add scripts to apps/api/package.json:
+
+{
+  "scripts": {
+    "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "studio": "prisma studio"
+  }
+}
+
+
+Run the API:
+
+pnpm approve-builds           # if prompted earlier
+pnpm exec prisma migrate dev --name init
+pnpm run start:dev
+
+
+Quick test:
+
+Invoke-RestMethod "http://localhost:3001/assets" -Headers @{Accept="application/json"}
+# Expect: []
+
+3. Prisma Studio
+# from apps/api
+pnpm run studio
+# Opens http://localhost:5555
+
+
+Left sidebar: tables (Asset, Schedule, Inspection, Document, OutOfUseCredit, Audit).
+
+Top grid: records.
+
+Add record to insert; Save changes writes to SQLite.
+
+4. Frontend — Vite + React + TypeScript
+4.1 Create the UI
+# from EAM/
+pnpm dlx create-vite@latest eam-ui --template react-ts
+cd .\eam-ui
+pnpm add react-router-dom
+pnpm add -D @types/react @types/react-dom typescript
+
+
+Create .env:
+
+VITE_API_URL=http://localhost:3001
+
+4.2 App shell
+
+eam-ui/index.html (Vite default is fine; ensure it loads /src/main.tsx):
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EAM UI</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+
+eam-ui/src/main.tsx:
+
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+eam-ui/src/App.tsx:
+
+export default function App() {
+  return (
+    <div style={{ padding: 24 }}>
+      <h1>EAM UI</h1>
+      <p>UI is talking to API at {import.meta.env.VITE_API_URL}</p>
+    </div>
+  );
+}
+
+
+Run:
+
+pnpm run dev
+# open the printed URL (usually http://localhost:5173)
+
+
+You should see:
+
+EAM UI
+UI is talking to API at http://localhost:3001
+
+5. Troubleshooting (What We Fixed)
+Symptom	Cause	Fix
+Cannot find module '.../dist/app.module'	API not built; dist missing	pnpm run build or pnpm run start:dev
+Decorator errors (@Get, @Post)	JS artifacts in src/ or missing TS decorator flags	Delete stray *.js/*.map/*.bak in src/; ensure experimentalDecorators + emitDecoratorMetadata are true
+app.enableCors error	Called before app existed	Create app, then call app.enableCors()
+Prisma P3019 provider mismatch	Old migrations for a different provider	Delete prisma/migrations and migration_lock.toml, rerun migrate dev
+Zod / Node default-import errors	esModuleInterop off	Ensure "esModuleInterop": true in tsconfig
+Blank Vite page + chrome-extension:// errors	Browser extension failed a dynamic import	Use Incognito or disable the extension
+Parsing error: Cannot read file 'tsconfig.json'	ESLint pointing to wrong project root	Ensure a tsconfig.json exists per app and ESLint references it
+
+Clean leaked build artifacts (API):
+
+# from apps/api
+Get-ChildItem .\src -Recurse -Include *.js,*.js.map,*.bak | Remove-Item -Force
+if (Test-Path .\dist) { Remove-Item .\dist -Recurse -Force }
+
+6. Fresh-Machine Quickstart (Copy/Paste)
+# ----- Root -----
+mkdir EAM; cd EAM
+
+# tsconfig base
+@'
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+'@ | Out-File -Encoding utf8 .\tsconfig.base.json
+
+# ----- Backend -----
+pnpm dlx @nestjs/cli new apps/api --package-manager pnpm
+cd .\apps\api
+pnpm add @prisma/client zod @nestjs/config @nestjs/passport @nestjs/jwt bcrypt class-validator class-transformer
+pnpm add -D prisma ts-node tsconfig-paths typescript @types/bcrypt
+pnpm exec prisma init --datasource-provider sqlite
+
+# .env
+@'
+DATABASE_URL="file:./dev.db"
+PORT=3001
+'@ | Out-File -Encoding utf8 .\.env
+
+# schema.prisma (paste the full model from the section above)
+# then:
+pnpm approve-builds
+pnpm exec prisma generate
+pnpm exec prisma migrate dev --name init
+
+# tsconfig.json
+@'
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*"]
+}
+'@ | Out-File -Encoding utf8 .\tsconfig.json
+
+# main.ts (paste from above)
+# add scripts to package.json (start:dev/build/start/studio)
+pnpm run start:dev
+
+# ----- Frontend -----
+cd ..\..   # back to EAM
+pnpm dlx create-vite@latest eam-ui --template react-ts
+cd .\eam-ui
+pnpm add react-router-dom
+pnpm add -D @types/react @types/react-dom typescript
+
+# .env
+@'
+VITE_API_URL=http://localhost:3001
+'@ | Out-File -Encoding utf8 .\.env
+
+# index.html / main.tsx / App.tsx (paste from above)
+pnpm run dev
+
+7. Next Steps
+
+Secure the API (JWT) and restrict CORS to your UI origin.
+
+Implement full CRUD (PUT/DELETE) routes + UI forms with validation (class-validator on API, zod in UI).
+
+File uploads for Document records (Nest multipart route + local/S3 storage).
+
+Tests for schedule recompute and inspection close-out.
+
+Dockerize the API (mount SQLite volume) for easy deployment.
+
+8. Quick Glossary
+
+NestJS — Node framework using decorators (@Controller, @Get, etc.)
+
+Prisma — Type-safe ORM. migrate dev creates tables; studio explores data
+
+SQLite — File DB at apps/api/prisma/dev.db
+
+Vite — Dev server and bundler for the React UI
+
+pnpm — Package manager; pnpm approve-builds allows native postinstalls
+
+CORS — Cross-origin rules to allow UI → API requests
