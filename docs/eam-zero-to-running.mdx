@@ -2,33 +2,28 @@
 id: eam-zero-to-running
 title: EAM App — From Zero to Running
 ---
-
 import Admonition from '@theme/Admonition';
-
----
 
 # EAM App — From Zero to Running
 
-A clean, beginner-friendly write-up of everything we did so you (or future-you) can rebuild this stack from scratch:
+A clean, beginner-friendly write-up of everything we did so you (or future-you) can rebuild this stack from scratch.
 
-- Backend: NestJS API + Prisma + SQLite
+- **Backend:** NestJS API + Prisma + SQLite  
+- **Frontend:** Vite + React + TypeScript  
+- **Tooling:** pnpm, Prisma Studio, minimal TS/ESLint config
 
-- Frontend: Vite + React + TypeScript
+---
 
-Tooling: pnpm, Prisma Studio, minimal TS/ESLint config
+## 0. Prerequisites
 
-0. Prerequisites
+- Node.js 18+ (OK with Node 24)  
+- pnpm 8+  
+- PowerShell (Windows; commands here use PS)
 
-Node.js 18+ (OK with Node 24)
-
-pnpm 8+
-
-PowerShell (Windows; commands here use PS)
-
+```bash
 node -v
 pnpm -v
-
-1. Project Layout (Monorepo)
+Project Layout (Monorepo)
 EAM/
 ├─ apps/
 │  └─ api/          # NestJS + Prisma (SQLite)
@@ -62,7 +57,7 @@ cd .\apps\api
 pnpm add @prisma/client zod @nestjs/config @nestjs/passport @nestjs/jwt bcrypt class-validator class-transformer
 pnpm add -D prisma ts-node tsconfig-paths typescript @types/bcrypt
 
-<Admonition type="tip" title="If pnpm blocks native postinstalls"> Run `pnpm approve-builds` later and allow: **prisma, @prisma/engines, @prisma/client, bcrypt** (and often **@swc/core, esbuild**). </Admonition>
+<Admonition type="tip" title="If pnpm blocks native postinstalls"> Run <code>pnpm approve-builds</code> later and allow: <strong>prisma, @prisma/engines, @prisma/client, bcrypt</strong> (and often <strong>@swc/core, esbuild</strong>). </Admonition>
 2.2 Prisma init and schema
 pnpm exec prisma init --datasource-provider sqlite
 
@@ -164,7 +159,7 @@ Generate client and create DB/migrations:
 pnpm exec prisma generate
 pnpm exec prisma migrate dev --name init
 
-<Admonition type="info" title="If you see P3019 (provider mismatch)"> Delete `apps/api/prisma/migrations` and `apps/api/prisma/migration_lock.toml`, then rerun `migrate dev`. </Admonition>
+<Admonition type="info" title="If you see P3019 (provider mismatch)"> Delete <code>apps/api/prisma/migrations</code> and <code>apps/api/prisma/migration_lock.toml</code>, then rerun <code>migrate dev</code>. </Admonition>
 2.3 TypeScript config and bootstrap
 
 apps/api/tsconfig.json:
@@ -228,7 +223,7 @@ Left sidebar: tables (Asset, Schedule, Inspection, Document, OutOfUseCredit, Aud
 
 Top grid: records.
 
-Add record to insert; Save changes writes to SQLite.
+Add record to insert; Save writes to SQLite.
 
 4. Frontend — Vite + React + TypeScript
 4.1 Create the UI
@@ -245,7 +240,7 @@ VITE_API_URL=http://localhost:3001
 
 4.2 App shell
 
-eam-ui/index.html (Vite default is fine; ensure it loads /src/main.tsx):
+eam-ui/index.html (ensure it loads /src/main.tsx):
 
 <!doctype html>
 <html>
@@ -346,7 +341,6 @@ PORT=3001
 '@ | Out-File -Encoding utf8 .\.env
 
 # schema.prisma (paste the full model from the section above)
-# then:
 pnpm approve-builds
 pnpm exec prisma generate
 pnpm exec prisma migrate dev --name init
@@ -409,3 +403,12 @@ Vite — Dev server and bundler for the React UI
 pnpm — Package manager; pnpm approve-builds allows native postinstalls
 
 CORS — Cross-origin rules to allow UI → API requests
+
+
+---
+
+### Why this fixes your error
+- In MDX, **any `{...}` outside a code fence** is parsed as an expression. Your first un-fenced JSON block (the `tsconfig.base.json`) starts with `{`, which acorn tried to parse → compilation error at line 42.  
+- Fencing all code/JSON/trees/commands prevents MDX from treating them as JSX/expressions.
+
+If you want me to patch just your original file instead of replacing it wholesale, paste the exact file a
