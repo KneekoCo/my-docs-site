@@ -2,9 +2,10 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   tutorialSidebar: [
-    'welcome',                  // docs/welcome.mdx
-    'notion-task-tracker',      // docs/notion-task-tracker.mdx
-    'sharepoint-recipes-backend'// docs/sharepoint-recipes-backend.mdx
+    'welcome',
+    'notion-task-tracker',
+    'sharepoint-recipes-backend',
+    'eam-zero-to-running', // new page
   ],
 };
 

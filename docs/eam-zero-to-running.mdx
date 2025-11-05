@@ -2,6 +2,7 @@
 id: eam-zero-to-running
 title: EAM App — From Zero to Running
 ---
+
 import Admonition from '@theme/Admonition';
 
 # EAM App — From Zero to Running
@@ -16,23 +17,27 @@ A clean, beginner-friendly write-up of everything we did so you (or future-you) 
 
 ## 0. Prerequisites
 
-- Node.js 18+ (OK with Node 24)  
-- pnpm 8+  
-- PowerShell (Windows; commands here use PS)
+- Node.js 18+ (Node 20/22/24 is fine)
+- pnpm 8+
+- PowerShell on Windows
+
+Check versions:
 
 ```bash
 node -v
 pnpm -v
+
 Project Layout (Monorepo)
 EAM/
 ├─ apps/
 │  └─ api/          # NestJS + Prisma (SQLite)
 ├─ eam-ui/          # Vite + React + TypeScript UI
 └─ tsconfig.base.json
+```
 
 
 Create tsconfig.base.json at the repo root:
-
+```json
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -44,25 +49,30 @@ Create tsconfig.base.json at the repo root:
     "forceConsistentCasingInFileNames": true
   }
 }
-
+```
 2. Backend — NestJS + Prisma (SQLite)
-2.1 Create the Nest app
+### 2.1 Create the Nest app
+```bash
 # from EAM/
 pnpm dlx @nestjs/cli new apps/api --package-manager pnpm
-
+```
 
 Add dependencies:
-
+```bash
 cd .\apps\api
 pnpm add @prisma/client zod @nestjs/config @nestjs/passport @nestjs/jwt bcrypt class-validator class-transformer
 pnpm add -D prisma ts-node tsconfig-paths typescript @types/bcrypt
+```
 
 <Admonition type="tip" title="If pnpm blocks native postinstalls"> Run <code>pnpm approve-builds</code> later and allow: <strong>prisma, @prisma/engines, @prisma/client, bcrypt</strong> (and often <strong>@swc/core, esbuild</strong>). </Admonition>
-2.2 Prisma init and schema
+
+### 2.2 Prisma init and schema
+```bash
 pnpm exec prisma init --datasource-provider sqlite
 
 
 Create .env:
+
 
 DATABASE_URL="file:./dev.db"
 PORT=3001
@@ -70,6 +80,7 @@ PORT=3001
 
 Replace prisma/schema.prisma with:
 
+```prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -156,6 +167,7 @@ model Audit {
 
 Generate client and create DB/migrations:
 
+```bash
 pnpm exec prisma generate
 pnpm exec prisma migrate dev --name init
 
@@ -163,7 +175,7 @@ pnpm exec prisma migrate dev --name init
 2.3 TypeScript config and bootstrap
 
 apps/api/tsconfig.json:
-
+```json
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
@@ -177,7 +189,7 @@ apps/api/tsconfig.json:
 
 
 apps/api/src/main.ts:
-
+```ts
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 
@@ -190,7 +202,7 @@ bootstrap();
 
 
 Add scripts to apps/api/package.json:
-
+```json
 {
   "scripts": {
     "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
@@ -202,18 +214,19 @@ Add scripts to apps/api/package.json:
 
 
 Run the API:
-
+```bash
 pnpm approve-builds           # if prompted earlier
 pnpm exec prisma migrate dev --name init
 pnpm run start:dev
 
 
 Quick test:
-
+```poweshell
 Invoke-RestMethod "http://localhost:3001/assets" -Headers @{Accept="application/json"}
 # Expect: []
 
 3. Prisma Studio
+```bash
 # from apps/api
 pnpm run studio
 # Opens http://localhost:5555
@@ -227,6 +240,7 @@ Add record to insert; Save writes to SQLite.
 
 4. Frontend — Vite + React + TypeScript
 4.1 Create the UI
+```bash
 # from EAM/
 pnpm dlx create-vite@latest eam-ui --template react-ts
 cd .\eam-ui
@@ -235,7 +249,7 @@ pnpm add -D @types/react @types/react-dom typescript
 
 
 Create .env:
-
+```text
 VITE_API_URL=http://localhost:3001
 
 4.2 App shell
