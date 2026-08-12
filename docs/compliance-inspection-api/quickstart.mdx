@@ -15,7 +15,6 @@ You need:
 - The API running locally, or a base URL for a deployed instance
 - Your API token
 - `curl`, or any HTTP client
-- The API source is on GitHub: [KneekoCo/compliance-inspection-api](https://github.com/KneekoCo/compliance-inspection-api)
 
 All examples below use the local base URL:
 
@@ -40,6 +39,12 @@ Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
 Leave this running. Open a second terminal for the remaining steps.
+
+:::note Using the interactive docs at /docs?
+If you open `http://127.0.0.1:8000/docs` in your browser, each endpoint lists every response it can possibly return — usually a success code plus `401`, `404`, or `422` — with an example body for each. This list is always shown, whether or not you have made a request yet. It is reference material, not a report of something that went wrong.
+
+Your actual result appears in a separate section labeled **Server response**, which only shows up after you click **Execute**. If you see a `401` or `422` example lower on the page but haven't run a request, nothing has failed — you are just looking at the documentation for what a failure would look like.
+:::
 
 ## Step 2 — Create an inspection
 
