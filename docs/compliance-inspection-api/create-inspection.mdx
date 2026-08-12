@@ -1,0 +1,158 @@
+---
+sidebar_position: 3
+title: Create an inspection
+description: Reference for POST /v1/inspections — create a new inspection record.
+---
+
+# Create an inspection
+
+```
+POST /v1/inspections
+```
+
+Creates a new inspection record. New records always start with status `pending`.
+
+Use this when an inspection is **scheduled or begun**. To record the outcome, create the record first, then close it with [`PATCH /v1/inspections/{id}`](./quickstart#step-3--close-the-inspection). There is no way to create a record that is already `passed` or `failed` — this keeps an auditable trail of when the inspection was opened and when it was resolved.
+
+## Authentication
+
+Required. See [Authentication](./authentication).
+
+```
+Authorization: Bearer <your-token>
+```
+
+## Request body
+
+`Content-Type: application/json`
+
+| Field | Type | Required | Constraints | Description |
+|---|---|---|---|---|
+| `asset_id` | string | Yes | 1–64 characters | Identifier of the equipment being inspected. Free text — the API does not validate it against an asset registry. |
+| `inspection_type` | string | Yes | 1–64 characters | The inspection procedure being performed. Free text, but use a consistent convention across your organization — see below. |
+| `inspector` | string | Yes | 1–128 characters | Who performed the inspection. |
+| `notes` | string | No | 0–1000 characters | Free-text observations. Defaults to `null` if omitted. |
+
+:::tip Pick an `inspection_type` convention early
+The API accepts any string here, which means inconsistency is entirely on you. `cab_signal_92_day`, `Cab Signal 92 Day`, and `cab-signal-92day` are three different values as far as filtering is concerned. Agree on lowercase snake_case before you have thousands of records to clean up.
+:::
+
+### Fields you cannot set
+
+`id`, `status`, `created_at`, and `updated_at` are assigned by the API. Including them in the request body has no effect — they are silently ignored, not rejected.
+
+## Example request
+
+```bash
+curl -X POST http://127.0.0.1:8000/v1/inspections \
+  -H "Authorization: Bearer demo-token-replace-me" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "asset_id": "MP36PH-3C-08",
+    "inspection_type": "cab_signal_92_day",
+    "inspector": "N. Sorensen",
+    "notes": "Scheduled during 92-day cycle."
+  }'
+```
+
+```python
+import requests
+
+response = requests.post(
+    "http://127.0.0.1:8000/v1/inspections",
+    headers={"Authorization": "Bearer demo-token-replace-me"},
+    json={
+        "asset_id": "MP36PH-3C-08",
+        "inspection_type": "cab_signal_92_day",
+        "inspector": "N. Sorensen",
+        "notes": "Scheduled during 92-day cycle.",
+    },
+)
+inspection = response.json()
+```
+
+```javascript
+const response = await fetch("http://127.0.0.1:8000/v1/inspections", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer demo-token-replace-me",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    asset_id: "MP36PH-3C-08",
+    inspection_type: "cab_signal_92_day",
+    inspector: "N. Sorensen",
+    notes: "Scheduled during 92-day cycle.",
+  }),
+});
+const inspection = await response.json();
+```
+
+## Response
+
+`201 Created`
+
+```json
+{
+  "id": "insp_62a109f8a085",
+  "asset_id": "MP36PH-3C-08",
+  "inspection_type": "cab_signal_92_day",
+  "inspector": "N. Sorensen",
+  "status": "pending",
+  "notes": "Scheduled during 92-day cycle.",
+  "created_at": "2026-08-12T17:04:22.918431Z",
+  "updated_at": "2026-08-12T17:04:22.918431Z"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique identifier, prefixed `insp_` followed by 12 hex characters. Treat it as opaque — do not parse it. |
+| `asset_id` | string | As submitted. |
+| `inspection_type` | string | As submitted. |
+| `inspector` | string | As submitted. |
+| `status` | string | One of `pending`, `passed`, `failed`. Always `pending` on creation. |
+| `notes` | string \| null | As submitted, or `null` if omitted. |
+| `created_at` | string | ISO 8601 timestamp, UTC. Never changes. |
+| `updated_at` | string | ISO 8601 timestamp, UTC. Equal to `created_at` on creation. |
+
+## Errors
+
+| Status | Meaning | Cause | Fix |
+|---|---|---|---|
+| `401` | Unauthorized | Header missing, malformed, or token does not match | See [Authentication](./authentication) |
+| `422` | Unprocessable Entity | A required field is missing, empty, or exceeds its maximum length | Read the `loc` array in the response to find the offending field |
+
+### Reading a 422
+
+The response identifies the exact field:
+
+```json
+{
+  "detail": [
+    {
+      "type": "string_too_short",
+      "loc": ["body", "asset_id"],
+      "msg": "String should have at least 1 character",
+      "input": ""
+    }
+  ]
+}
+```
+
+`loc` is a path into your request. `["body", "asset_id"]` means the `asset_id` field of the request body. `detail` is an array — if several fields are invalid, you get one entry each, so fix them all in one pass rather than resubmitting repeatedly.
+
+:::caution Empty strings are not the same as omitted
+`"asset_id": ""` fails with `422` because the minimum length is 1. Omitting `asset_id` entirely also fails, but with `type: "missing"`. If you are building request bodies programmatically, strip empty values rather than passing them through.
+:::
+
+## Notes on behavior
+
+- **Records are stored in memory.** Restarting the server clears everything. This is a demonstration API, not a durable store.
+- **There is no deduplication.** Posting the same body twice creates two records with different IDs. If you need idempotency, check with [`GET /v1/inspections`](./quickstart#step-4--confirm-it) before creating.
+- **Timestamps are UTC** and include microseconds.
+
+## See also
+
+- [Quickstart](./quickstart) — the full create-update-verify loop
+- [Authentication](./authentication)
