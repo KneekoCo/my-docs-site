@@ -1,0 +1,85 @@
+---
+sidebar_position: 2
+title: Authentication
+description: How to authenticate requests to the Compliance Inspection API.
+---
+
+# Authentication
+
+Every endpoint requires authentication. There are no public endpoints.
+
+## How it works
+
+The API uses **bearer token** authentication. Send your token in the `Authorization` header on every request:
+
+```
+Authorization: Bearer <your-token>
+```
+
+The word `Bearer`, a single space, then the token.
+
+## Getting a token
+
+The current version uses a single static token configured on the server. In `main.py`:
+
+```python
+API_TOKEN = "demo-token-replace-me"
+```
+
+:::warning Do not ship this
+A hardcoded token is fine for local development and for reading these docs. Before deploying anywhere reachable, move it to an environment variable and rotate it. Anyone with the token has full read and write access to every record.
+:::
+
+## Making an authenticated request
+
+```bash
+curl http://127.0.0.1:8000/v1/inspections \
+  -H "Authorization: Bearer demo-token-replace-me"
+```
+
+```python
+import requests
+
+RESPONSE = requests.get(
+    "http://127.0.0.1:8000/v1/inspections",
+    headers={"Authorization": "Bearer demo-token-replace-me"},
+)
+print(RESPONSE.json())
+```
+
+```javascript
+const response = await fetch("http://127.0.0.1:8000/v1/inspections", {
+  headers: { Authorization: "Bearer demo-token-replace-me" },
+});
+const data = await response.json();
+```
+
+## When authentication fails
+
+A failed request returns `401` with this body:
+
+```json
+{
+  "detail": "Missing or invalid bearer token."
+}
+```
+
+The same message covers every failure case, so check these in order:
+
+1. **Is the header present?** Missing headers are the most common cause.
+2. **Is the scheme right?** `Bearer abc123`, not `Token abc123` or `bearer abc123`.
+3. **Is there exactly one space** between `Bearer` and the token?
+4. **Did the token get truncated?** Trailing newlines from shell variables are a frequent culprit. Use `printf` rather than `echo` when building headers in scripts.
+5. **Does the token match the server?** If the server was restarted with a different value, older tokens stop working immediately.
+
+:::note Why one generic message
+The API returns the same text whether the header is missing or the token is wrong. This is deliberate — a more specific message would tell an attacker which half of the guess was correct.
+:::
+
+## Testing interactively
+
+The API serves a Swagger UI at `/docs`. Click **Authorize**, paste your token without the `Bearer` prefix, and every request from that page will carry the header for you.
+
+## Next steps
+
+- [Create an inspection](./create-inspection) — full endpoint reference
