@@ -1,0 +1,141 @@
+---
+sidebar_position: 1
+title: Quickstart
+description: Make your first Compliance Inspection API call in under five minutes.
+---
+
+# Quickstart
+
+Create your first inspection record in under five minutes.
+
+## Before you start
+
+You need:
+
+- The API running locally, or a base URL for a deployed instance
+- Your API token
+- `curl`, or any HTTP client
+
+All examples below use the local base URL:
+
+```
+http://127.0.0.1:8000
+```
+
+Replace it with your deployed URL if you are not running locally.
+
+## Step 1 — Start the API
+
+From the project directory:
+
+```bash
+uvicorn main:app --reload
+```
+
+You should see:
+
+```
+Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+Leave this running. Open a second terminal for the remaining steps.
+
+## Step 2 — Create an inspection
+
+Every request needs an `Authorization` header. See [Authentication](./authentication) for details.
+
+```bash
+curl -X POST http://127.0.0.1:8000/v1/inspections \
+  -H "Authorization: Bearer demo-token-replace-me" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "asset_id": "MP36PH-3C-08",
+    "inspection_type": "cab_signal_92_day",
+    "inspector": "N. Sorensen"
+  }'
+```
+
+You get back the created record:
+
+```json
+{
+  "id": "insp_62a109f8a085",
+  "asset_id": "MP36PH-3C-08",
+  "inspection_type": "cab_signal_92_day",
+  "inspector": "N. Sorensen",
+  "status": "pending",
+  "notes": null,
+  "created_at": "2026-08-12T17:04:22.918431Z",
+  "updated_at": "2026-08-12T17:04:22.918431Z"
+}
+```
+
+Two things to notice:
+
+- The API assigns the `id`. Do not send one.
+- New records always start as `pending`. You cannot create a record that is already `passed` or `failed`.
+
+**Copy the `id`** — you need it for the next step.
+
+## Step 3 — Close the inspection
+
+Once the inspection is complete, update its status:
+
+```bash
+curl -X PATCH http://127.0.0.1:8000/v1/inspections/insp_62a109f8a085 \
+  -H "Authorization: Bearer demo-token-replace-me" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "passed",
+    "notes": "All checks within tolerance."
+  }'
+```
+
+The response shows the new status and a refreshed `updated_at`:
+
+```json
+{
+  "id": "insp_62a109f8a085",
+  "asset_id": "MP36PH-3C-08",
+  "inspection_type": "cab_signal_92_day",
+  "inspector": "N. Sorensen",
+  "status": "passed",
+  "notes": "All checks within tolerance.",
+  "created_at": "2026-08-12T17:04:22.918431Z",
+  "updated_at": "2026-08-12T17:06:41.220008Z"
+}
+```
+
+## Step 4 — Confirm it
+
+List everything that has passed:
+
+```bash
+curl "http://127.0.0.1:8000/v1/inspections?status=passed" \
+  -H "Authorization: Bearer demo-token-replace-me"
+```
+
+```json
+{
+  "data": [ { "id": "insp_62a109f8a085", "status": "passed", "...": "..." } ],
+  "total": 1,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+That is the full lifecycle: create, update, verify.
+
+## Troubleshooting
+
+| What you see | Cause | Fix |
+|---|---|---|
+| `401 Missing or invalid bearer token.` | No `Authorization` header, or the token is wrong | Check the header format — `Bearer <token>`, with a space |
+| `404 No inspection with id '...'` | The ID does not exist, or the server restarted | Records are held in memory and clear on restart. Create a new one |
+| `422 Unprocessable Entity` | A required field is missing or too long | Check `asset_id`, `inspection_type`, and `inspector` are all present and non-empty |
+| `Connection refused` | The server is not running | Return to Step 1 |
+
+## Next steps
+
+- [Authentication](./authentication) — how tokens work
+- [Create an inspection](./create-inspection) — full reference for `POST /v1/inspections`
